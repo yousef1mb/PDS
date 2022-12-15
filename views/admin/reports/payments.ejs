@@ -1,0 +1,33 @@
+
+<%- include('../header') %>
+<main class="container">
+  <a class="btn btn-info mb-3" href="/admin/reports" role="button">Back</a>
+  <table class="table table-striped table-dark">
+    <thead>
+      <tr>
+        <th scope="col">Payment ID</th>
+        <th scope="col">confirmed</th>
+        <th scope="col">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <% if (payments.length) { %>
+        <% payments.forEach( payment => { %>
+          <tr>
+            <th scope="row"><%= payment.ID%></th>
+            <td>confirmed</td>
+            <td><%= payment.cost %></td>
+          </tr>
+        <% }) } else { %>
+        <tr>
+          <td colspan="8">There is no payments ... </td>
+        </tr>
+      <% } %>
+
+    </tbody>
+  </table>
+</main>
+
+
+<%- include('../../footer.ejs') %>

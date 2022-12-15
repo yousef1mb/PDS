@@ -24,6 +24,14 @@ const getPackagesBasedOnCustomer = async (req, res) => {};
 
 const getTrackedPackages = async (req, res) => {};
 
+const getPackages = async (req, res) => {};
+
+const getPackage = async (req, res) => {};
+
+const getUsers = async (req, res) => {};
+
+const getUser = async (req, res) => {};
+
 module.exports = {
   addPackage,
   addUser,
@@ -38,4 +46,8 @@ module.exports = {
   getPackagesBasedOnTypes,
   getPackagesBasedOnCustomer,
   getTrackedPackages,
+  getPackage,
+  getPackages,
+  getUsers,
+  getUser,
 };

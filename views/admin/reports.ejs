@@ -1,0 +1,49 @@
+<%- include('header') %>
+
+
+<main class="container">
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
+    <div class="col choice">
+      <button type="button"
+              class="btn btn-primary"
+              data-toggle="modal" 
+              data-target="payments">Payments</button>
+    </div>
+    <div class="col choice">
+      <button type="button"
+              class="btn btn-primary"
+              data-toggle="modal" 
+              data-target="status">Packages with Status</button>
+    </div>
+    <div class="col choice">
+      <button type="button"
+              class="btn btn-primary"
+              data-toggle="modal" 
+              data-target="types">Packages with Type</button>
+    </div>
+    <div class="col choice">
+      <button type="button"
+              class="btn btn-primary"
+              data-toggle="modal" 
+              data-target="tracking">Packages with specific tracking</button>
+    </div>
+    <div class="col choice">
+      <button type="button"
+              class="btn btn-primary"
+              data-toggle="modal" 
+              data-target="customerPackage">Packages with specific Customer</button>
+    </div>
+  </div>
+</main>
+
+<div class="modals">
+  <%- include('modals/payments')%>
+  <%- include('modals/status')%>
+  <%- include('modals/types')%>
+  <%- include('modals/tracking')%>
+  <%- include('modals/customerPackage')%>
+</div>
+
+
+<%- include('../footer.ejs') %>
+

@@ -1,0 +1,55 @@
+<div class="modal fade" id="tracking" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="trackingLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="trackingLabel">List Packages with specific information</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="/admin/reports/tracking" method="post">
+        <div class="modal-body">
+
+          <div class="form-group">
+            <label for="category">Category</label>
+            <select class="form-control" name="category" id="category">
+              <option value="fragile">Fragile</option>
+              <option value="regular">Regular</option>
+              <option value="liquid">Liquid</option>
+              <option value="chemical">Chemical</option>
+            </select> 
+          </div>
+
+          <div class="form-group">
+            <label for="location">Location</label>
+            <select class="form-control" name="location" id="location">
+              <option value="Riyadh">Riyadh</option>
+              <option value="Dammam">Dammam</option>
+              <option value="Jeddah">Jeddah</option>
+              <option value="Qassim">Qassim</option>
+              <option value="Najran">Najran</option>
+              <option value="Jizan">Jizan</option>
+              <option value="Abha">Abha</option>
+            </select> 
+            <small id="locationHelp" class="form-text text-muted">There are only 7 cities currently.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="category">Category</label>
+            <select class="form-control" name="category" id="category">
+              <option value="fragile">Fragile</option>
+              <option value="regular">Regular</option>
+              <option value="liquid">Liquid</option>
+              <option value="chemical">Chemical</option>
+            </select> 
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Get Report</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,46 @@
+<%- include('header') %>
+
+<main class="container">
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updatePackage">
+    Update
+  </button>
+  <h1 class="text-left"><%= package.packageNum %></h1>
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
+    <p class="lead col">Value: <%= package.value%></p>
+    <p class="lead col">Weight: <%= package.weight%></p>
+    <p class="lead col">Category: <%= package.category%></p>
+  </div>
+  <p class="lead">Insurance Amount: <%= package.insurance%></p>
+  <h4>Dimensions</h4>
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
+    <p class="lead col">Width: <%= package.width%></p>
+    <p class="lead col">Height: <%= package.height%></p>
+    <p class="lead col">Length: <%= package.length%></p>
+  </div>
+  <p class="lead">Barcode: <%= package.barcode%></p>
+  <hr>
+
+  <table class="table table-striped table-dark">
+    <thead>
+      <tr>
+        <th scope="col">Date</th>
+        <th scope="col">Location</th>
+        <th scope="col">status</th>
+      </tr>
+    </thead>
+    <tbody>
+        <% package.tracers.forEach( tracer => { %>
+          <tr>
+            <th scope="row"><%= tracer.date%></th>
+            <td><%= tracer.location %></td>
+            <td><%= tracer.status %></td>
+          </tr>
+        <% }) 
+
+    </tbody>
+  </table>
+</main>
+
+<%- include('modals/updatePackage') %>
+
+<%- include('../footer.ejs') %>

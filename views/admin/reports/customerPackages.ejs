@@ -1,0 +1,43 @@
+<%- include('../header') %>
+
+<main class="container">
+  <a class="btn btn-info mb-3" href="/admin/reports" role="button">Back</a>
+  <table class="table table-striped table-dark">
+    <thead>
+      <tr>
+        <th scope="col">Package Number</th>
+        <th scope="col">Status</th>
+        <th scope="col">Category</th>
+        <th scope="col">Insurance amount</th>
+        <th scope="col">Weight</th>
+        <th scope="col">Dimensions</th>
+        <th scope="col">Value</th>
+        <th scope="col">Barcode</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <% if (packages.length) { %>
+        <% packages.forEach( package => { %>
+          <tr>
+            <th scope="row"><%= package.packageNum%></th>
+            <td><%= package.status %></td>
+            <td><%= package.category %></td>
+            <td><%= package.insurance %></td>
+            <td><%= package.weight%></td>
+            <td>L: <%= package.length %> H: <%= package.height %> W: <%= package.width %></td>
+            <td><%= package.value %></td>
+            <td><%= package.barcode%></td>
+          </tr>
+        <% }) } else { %>
+        <tr>
+          <td colspan="8">This customer has no packages ... </td>
+        </tr>
+      <% } %>
+
+    </tbody>
+  </table>
+</main>
+
+
+<%- include('../../footer.ejs') %>
