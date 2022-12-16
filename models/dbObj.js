@@ -4,17 +4,17 @@ const sqlite3 = require("sqlite3");
 const Package = {
   async addPackage(pckg) {
     const db = await sqlite.open({
-      filename: "pckg_dlv.db",
+      filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
     });
 
     const metadata = await db.run(
       `INSERT INTO Package(PackageNum, Category, pValue, 
-       Width, Height, Length, Weight, Insurance_amount, Status, FinalDeliveryDate,
+       Width, Height, Length, Weight, Insurance_amount, pStatus, FinalDeliveryDate,
        Sender_SSN, Reciever_SSN, RtlCenter_ID)
        VALUES (${pckg.PackageNum},${pckg.Category},
        ${pckg.pValue},${pckg.Width},${pckg.Height},${pckg.Length},
-       ${pckg.Weight},${pckg.Insurance_amount},${pckg.Status},${pckg.FinalDeliveryDate},
+       ${pckg.Weight},${pckg.Insurance_amount},${pckg.pStatus},${pckg.FinalDeliveryDate},
        ${pckg.Sender_SSN},${pckg.Reciever_SSN},${pckg.RtlCenter_ID})`
     );
 
@@ -24,7 +24,7 @@ const Package = {
 
   async removePackage(pckg) {
     const db = await sqlite.open({
-      filename: "pckg_dlv.db",
+      filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
     });
 
@@ -38,7 +38,7 @@ const Package = {
 
   async editPackage(pckg) {
     const db = await sqlite.open({
-      filename: "pckg_dlv.db",
+      filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
     });
 
@@ -47,7 +47,7 @@ const Package = {
          Category = ${pckg.Category}, pValue = ${pckg.pValue}, 
          Width = ${pckg.Width}, Height = ${pckg.Height}, Length = ${pckg.Length},
          Weight = ${pckg.Weight}, Insurance_amount = ${pckg.Insurance_amount},
-         Status = ${pckg.Status}, FinalDeliveryDate = ${pckg.FinalDeliveryDate},
+         pStatus = ${pckg.pStatus}, FinalDeliveryDate = ${pckg.FinalDeliveryDate},
          Sender_SSN = ${pckg.Sender_SSN}, Reciever_SSN = ${pckg.Reciever_SSN}, 
          RtlCenter_ID ${pckg.RtlCenter_ID}
          WHERE PackageNum = ${pckg.PackageNum}`
@@ -62,7 +62,7 @@ const Admin = {
   //Add user to DB
   async addUser(user) {
     const db = await sqlite.open({
-      filename: "pckg_dlv.db",
+      filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
     });
 
@@ -80,7 +80,7 @@ const Admin = {
   //Remove certain user from DB by ID
   async removeUser(user) {
     const db = await sqlite.open({
-      filename: "pckg_dlv.db",
+      filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
     });
 
@@ -95,7 +95,7 @@ const Admin = {
   //Edit certain user info by ID
   async editUser(user) {
     const db = await sqlite.open({
-      filename: "pckg_dlv.db",
+      filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
     });
 
@@ -113,7 +113,7 @@ const Admin = {
   //get All the users on the site
   async getAllUsers() {
     const db = await sqlite.open({
-      filename: "pckg_dlv.db",
+      filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
     });
 
@@ -126,7 +126,7 @@ const Admin = {
   //get All the packages on the site
   async getAllPackages() {
     const db = await sqlite.open({
-      filename: "pckg_dlv.db",
+      filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
     });
 
@@ -141,7 +141,7 @@ const Admin = {
   //All confirmed payments report
   async allConfirmedPayments() {
     const db = await sqlite.open({
-      filename: "pckg_dlv.db",
+      filename: "../pckg_dlv.db",
       driver: sqlite3.database,
     });
     const metadata = await db.all(
@@ -155,7 +155,7 @@ const Admin = {
   //This function lists all packages either sent or recieved by a certain user
   async SntRcvReport(U_SSN) {
     const db = await sqlite.open({
-      filename: "pckg_dlv.db",
+      filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
     });
 
@@ -168,12 +168,12 @@ const Admin = {
 
   async customTracking(info) {
     const db = await sqlite.open({
-      filename: "pckg_dlv.db",
+      filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
     });
 
     const metadata = await db.all(`SELECT Package.PackageNum FROM Package
-    WHERE Category = ${info.Category} AND Status = ${info.Status}`);
+    WHERE Category = ${info.Category} AND pStatus = ${info.pStatus}`);
     var founds = [];
     for (let i = 0; i++; i < metadata.length) {
       if (User.tracePackage(metadata[i]) == info.City) {
@@ -188,7 +188,7 @@ const Admin = {
   //List all packages between a certain date based on package status
   async packagesStatus(dates) {
     const db = await sqlite.open({
-      filename: "pckg_dlv.db",
+      filename: "../pckg_dlv.db",
       driver: sqlite3.database,
     });
     const metadata = await db.all(
@@ -207,15 +207,15 @@ const Admin = {
 
   async packagesTravelingStatus(dates) {
     const db = await sqlite.open({
-      filename: "pckg_dlv.db",
+      filename: "../pckg_dlv.db",
       driver: sqlite3.database,
     });
     const metadata = await db.all(
-      `SELECT Package.Status, COUNT(*)
+      `SELECT Package.pStatus, COUNT(*)
       FROM Package, History_of_location
       WHERE Package.PackageNum = History_of_location.PackageNum AND
       History_of_location.date BETWEEN ${dates.initialDate} AND ${dates.finalDate}
-      GROUP BY Package.Status`
+      GROUP BY Package.pStatus`
     );
     await db.close();
     return metadata;
@@ -225,7 +225,7 @@ const Admin = {
 const User = {
   async tracePackage(pckg) {
     const db = await sqlite.open({
-      filename: "pckg_dlv.db",
+      filename: "../pckg_dlv.db",
       driver: sqlite3.database,
     });
     const metadata = await db.all(
@@ -259,7 +259,7 @@ const User = {
   //Adds amount of payment to the db to considered confirmed payment later
   async addPayment(usr) {
     const db = await sqlite.open({
-      filename: "pckg_dlv.db",
+      filename: "../pckg_dlv.db",
       driver: sqlite3.database,
     });
     const metadata = await db.run(
@@ -273,16 +273,16 @@ const User = {
   //This adds sent package info
   async SendPackage(pckg) {
     const db = await sqlite.open({
-      filename: "pckg_dlv.db",
+      filename: "../pckg_dlv.db",
       driver: sqlite3.database,
     });
     const metadata = await db.run(
       `INSERT INTO Package(PackageNum, Category, pValue, 
-         Width, Height, Length, Weight, Insurance_amount, Status, FinalDeliveryDate,
+         Width, Height, Length, Weight, Insurance_amount, pStatus, FinalDeliveryDate,
          Sender_SSN, Reciever_SSN, RtlCenter_ID)
          VALUES (${pckg.PackageNum},${pckg.Category},
          ${pckg.pValue},${pckg.Width},${pckg.Height},${pckg.Length},
-         ${pckg.Weight},${pckg.Insurance_amount},${pckg.Status},${pckg.FinalDeliveryDate},
+         ${pckg.Weight},${pckg.Insurance_amount},${pckg.pStatus},${pckg.FinalDeliveryDate},
          ${Sender_SSN},${Reciever_SSN},${pckg.RtlCenter_ID})`
     );
     await db.close();
@@ -292,7 +292,7 @@ const User = {
   //get all sent packages by a specific user
   async getSentPckgs(U_SSN) {
     const db = await sqlite.open({
-      filename: "pckg_dlv.db",
+      filename: "../pckg_dlv.db",
       driver: sqlite3.database,
     });
     const metadata = await db.all(
@@ -305,7 +305,7 @@ const User = {
   //get all recieved packages by a specific user
   async getRecievedPckgs(U_SSN) {
     const db = await sqlite.open({
-      filename: "pckg_dlv.db",
+      filename: "../pckg_dlv.db",
       driver: sqlite3.database,
     });
     const metadata = await db.all(
