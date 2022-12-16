@@ -137,19 +137,24 @@ const Admin = {
     return metadata;
   },
 
-  //NOT COMPLETED
-  //Generates a report about a packages depending on (categories, locations and status)
+
   async customTracking(info) {
     const db = await sqlite.open({
       filename: "pckg_dlv.db",
       driver: sqlite3.Database,
     });
 
-    const metadata = await db.all(`SELECT * FROM Packages
-    WHERE Category = ${info.Category} AND Status = ${info.Status} AND`);
-
+    const metadata = await db.all(`SELECT Package.PackageNum FROM Package
+    WHERE Category = ${info.Category} AND Status = ${info.Status}`);
+    var founds = [];
+    for( let i = 0; i++ ; i < metadata.length) {
+      if(User.tracePackage(metadata[i]) == info.City) {
+        founds.push(metadata[i]);
+      }
+    }
     await db.close();
-    return metadata;
+    // you might return founds.length for counting the total number
+    return founds;
   },
 
   //NOT COMPLETED
@@ -160,10 +165,11 @@ const Admin = {
       driver: sqlite3.database,
     });
     const metadata = await db.all(
-      `select Package.PackageNum, Package.Status, 
+      `SELECT Package.Category, COUNT(*)
       FROM sysUser, History_of_location
       WHERE Package.PackageNum = History_of_location.PackageNum AND
-      History_of_location.date between ${dates.initialDate} AND ${dates.finalDate}`
+      History_of_location.date BETWEEN ${dates.initialDate} AND ${dates.finalDate}
+      GROUP BY Package.Category`
     );
     await db.close();
     return metadata;
@@ -174,30 +180,44 @@ const Admin = {
 
 const User = {
   //NOT SURE THIS IS WORKING <ALERT>
-  //ASK RAYAN :D
+  // changed by rayyan
   async tracePackage(pckg) {
     const db = await sqlite.open({
       filename: "pckg_dlv.db",
       driver: sqlite3.database,
     });
     const metadata = await db.all(
-      `select  *
-      from Package, History_of_Locations, Airport, Plane, Warehouse, Truck, Transport_via
-      where ${pckg.PackageNum} = History_of_Locations.PackageNum
-      and (
-        History_of_Locations.Lsurrogate = Airport.Lsurrogate
-        or
-        History_of_Locations.Lsurrogate = plane.Lsurrogate
-        or 
-        History_of_Locations.Lsurrogate = Truck.Lsurrogate
-        or
-        History_of_Locations.Lsurrogate = Transport_via.PackageNum
-        
-      )`
+      `SELECT  History_of_Locations.SurrogateLocation, History_of_Locations.Date
+      from Package, History_of_Locations
+      where History_of_Locations.PackageNum = ${pckg.PackageNum} 
+      ORDER BY History_of_Locations.Date DESC;`
     );
+    const srglocation = metadata[0].SurrogateLocation;
+    const tableName = [
+      "Truck", "Warehouse", "Plane", "Airport"
+    ];
+    var currentState;
+    for (let i = 0; i++; i < tableName.length) {
+      currentState = db.all(`
+      SELECT *
+      FROM ${tableName[i]}
+      WHERE ${srglocation} = Truck.SurrogateLocation
+      `)
+      if(currentState != null) {
+        await db.close();
+        if(tableName[i] == "Warehouse" || "Airport") { 
+          return currentState.City;
+        }else{
+          return currentState;
+        }
+      }
+      
+      
+    }
     await db.close();
-    return metadata;
+    return false;
   },
+
 
   //Adds amount of payment to the db to considered confirmed payment later
   async addPayment(usr) {
