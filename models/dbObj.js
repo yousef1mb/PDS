@@ -157,7 +157,6 @@ const Admin = {
     return founds;
   },
 
-  //NOT COMPLETED
   //List all packages between a certain date based on package status
   async packagesStatus(dates) {
     const db = await sqlite.open({
@@ -179,8 +178,6 @@ const Admin = {
 };
 
 const User = {
-  //NOT SURE THIS IS WORKING <ALERT>
-  // changed by rayyan
   async tracePackage(pckg) {
     const db = await sqlite.open({
       filename: "pckg_dlv.db",
