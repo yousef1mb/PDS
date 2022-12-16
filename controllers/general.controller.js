@@ -1,6 +1,10 @@
-const getMainPage = async (req, res) => {};
+const getMainPage = async (req, res) => {
+  return res.render("main");
+};
 
-const getLoginPage = async (req, res) => {};
+const getLoginPage = async (req, res) => {
+  return res.render("login");
+};
 
 const login = async (req, res) => {};
 

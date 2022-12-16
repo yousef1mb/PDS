@@ -122,6 +122,8 @@ thead {
   opacity: 1;
 }
 
-
+thead th{
+  color: #c90065;
+}
 
 

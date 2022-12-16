@@ -3,9 +3,9 @@ const router = express.Router();
 
 const general = require("../controllers/general.controller");
 
-router.get("/", general.getMainPage);
-router.get("/login", general.getLoginPage);
+router.get("/", general.getMainPage); // done
+router.get("/login", general.getLoginPage); // done
 router.post("/login", general.login);
 router.post("/logout", general.logout);
 
-export default router;
+module.exports = router;

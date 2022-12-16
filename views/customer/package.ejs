@@ -1,10 +1,8 @@
 <%- include('header') %>
 
 <main class="container">
-  <button type="button" class="btn btn-primary mb-1" data-toggle="modal" data-target="#updatePackage">
-    Update
-  </button>
-  <h1 class="text-left font-weight-bold bg-dark py-1 px-3 mt-3 mb-1 w-25 rounded-pill"><%= package.packageNum %></h1>
+
+  <h1 class="text-left  font-weight-bold bg-dark py-1 px-3 mt-3 mb-1 w-25 rounded-pill"><%= package.packageNum %></h1>
   <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
     <p class="lead col">Value: $<%= package.value%></p>
     <p class="lead col">Weight: <%= package.weight%> Kg</p>
@@ -21,6 +19,7 @@
   <hr>
 
   <h2 class="mb-2">The traceback of the package: </h2>
+  
   <table class="table table-striped table-dark">
     <thead>
       <tr>
@@ -47,7 +46,5 @@
     color: white;
   }
 </style>
-
-<%- include('modals/updatePackage') %>
 
 <%- include('../footer.ejs') %>

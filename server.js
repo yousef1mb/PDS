@@ -1,4 +1,6 @@
 const express = require("express");
+const bodyParser = require("body-parser");
+const path = require("path");
 
 const app = express();
 const port = 8000;
@@ -11,7 +13,7 @@ app.set("views", path.join(__dirname, "/views"));
 
 app.use("/", require("./routers/general.router"));
 app.use("/admin", require("./routers/admin.router"));
-app.use("/customer", require("./routers/customer.router"));
+app.use("/customers", require("./routers/customer.router"));
 
 app.listen(port, function () {
   console.log(`Server listening on port http://127.0.0.1:${port} !`);

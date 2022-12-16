@@ -1,0 +1,43 @@
+<%- include('header') %>
+
+<main class="container">
+  <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#sendPackage">
+    Send Package
+  </button>
+  <table class="table table-striped table-dark">
+    <thead>
+      <tr>
+        <th scope="col">Package Number</th>
+        <th scope="col">Category</th>
+        <th scope="col">Insurance amount</th>
+        <th scope="col">Value</th>
+        <th scope="col">Status</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <% if (packages.length) { %>
+        <% packages.forEach( package => { %>
+          <tr>
+            <th scope="row"><a href="/customers/<%= customer.ssn %>/packages/?q=<%= package.packageNum%>"><%= package.packageNum%></a></th>
+            <td><%= package.category %></td>
+            <td>$<%= package.insurance %></td>
+            <td>$<%= package.value %></td>
+            <td><%= package.status %></td>
+            <td><a class="btn btn-success" href="/customers/<%= customer.ssn %>/payment/<%= package.packageNum%>">Pay</a></td>
+          </tr>
+        <% }) } else { %>
+        <tr>
+          <td colspan="5">No sent packages yet ... </td>
+        </tr>
+      <% } %>
+
+    </tbody>
+  </table>
+</main>
+
+<%- include('modals/sendPackage') %>
+
+
+<%- include('../footer.ejs') %>
