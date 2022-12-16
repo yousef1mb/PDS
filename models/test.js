@@ -1,5 +1,5 @@
 //Importing the package object
-const { Package } = require("./dbObj");
+const { Package, Admin, User } = require("./dbObj");
 
 //Giving values to our parameter
 const pckg = {

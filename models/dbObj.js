@@ -2,6 +2,7 @@ const sqlite = require("sqlite");
 const sqlite3 = require("sqlite3");
 
 const Package = {
+  //WORKS
   async addPackage(pckg) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
