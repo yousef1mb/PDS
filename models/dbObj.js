@@ -107,6 +107,32 @@ const Admin = {
     return true;
   },
 
+  //get All the users on the site
+  async getAllUsers() {
+    const db = await sqlite.open({
+      filename: "pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+
+    const metadata = await db.all(`SELECT * FROM sysUser`);
+
+    await db.close();
+    return metadata;
+  },
+
+  //get All the packages on the site
+  async getAllPackages() {
+    const db = await sqlite.open({
+      filename: "pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+
+    const metadata = await db.all(`SELECT * FROM Package`);
+
+    await db.close();
+    return metadata;
+  },
+
   /* ===================REPORTS===================*/
 
   //All confirmed payments report
@@ -137,7 +163,6 @@ const Admin = {
     return metadata;
   },
 
-
   async customTracking(info) {
     const db = await sqlite.open({
       filename: "pckg_dlv.db",
@@ -147,8 +172,8 @@ const Admin = {
     const metadata = await db.all(`SELECT Package.PackageNum FROM Package
     WHERE Category = ${info.Category} AND Status = ${info.Status}`);
     var founds = [];
-    for( let i = 0; i++ ; i < metadata.length) {
-      if(User.tracePackage(metadata[i]) == info.City) {
+    for (let i = 0; i++; i < metadata.length) {
+      if (User.tracePackage(metadata[i]) == info.City) {
         founds.push(metadata[i]);
       }
     }
@@ -190,31 +215,26 @@ const User = {
       ORDER BY History_of_Locations.Date DESC;`
     );
     const srglocation = metadata[0].SurrogateLocation;
-    const tableName = [
-      "Truck", "Warehouse", "Plane", "Airport"
-    ];
+    const tableName = ["Truck", "Warehouse", "Plane", "Airport"];
     var currentState;
     for (let i = 0; i++; i < tableName.length) {
       currentState = db.all(`
       SELECT *
       FROM ${tableName[i]}
       WHERE ${srglocation} = Truck.SurrogateLocation
-      `)
-      if(currentState != null) {
+      `);
+      if (currentState != null) {
         await db.close();
-        if(tableName[i] == "Warehouse" || "Airport") { 
+        if (tableName[i] == "Warehouse" || "Airport") {
           return currentState.City;
-        }else{
+        } else {
           return currentState;
         }
       }
-      
-      
     }
     await db.close();
     return false;
   },
-
 
   //Adds amount of payment to the db to considered confirmed payment later
   async addPayment(usr) {
@@ -230,8 +250,8 @@ const User = {
     return true;
   },
 
-  //This adds package info either sent or recieved
-  async SendRecievePackage(pckg) {
+  //This adds sent package info
+  async SendPackage(pckg) {
     const db = await sqlite.open({
       filename: "pckg_dlv.db",
       driver: sqlite3.database,
@@ -247,6 +267,32 @@ const User = {
     );
     await db.close();
     return true;
+  },
+
+  //get all sent packages by a specific user
+  async getSentPckgs(U_SSN) {
+    const db = await sqlite.open({
+      filename: "pckg_dlv.db",
+      driver: sqlite3.database,
+    });
+    const metadata = await db.all(
+      `SELECT * FROM Package WHERE Sender_SSN = ${U_SSN}`
+    );
+    await db.close();
+    return metadata;
+  },
+
+  //get all recieved packages by a specific user
+  async getRecievedPckgs(U_SSN) {
+    const db = await sqlite.open({
+      filename: "pckg_dlv.db",
+      driver: sqlite3.database,
+    });
+    const metadata = await db.all(
+      `SELECT * FROM Package WHERE Reciever_SSN = ${U_SSN}`
+    );
+    await db.close();
+    return metadata;
   },
 };
 module.exports = {
