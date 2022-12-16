@@ -143,7 +143,7 @@ const Admin = {
   async allConfirmedPayments() {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
-      driver: sqlite3.database,
+      driver: sqlite3.Database,
     });
     const metadata = await db.all(
       `SELECT *
@@ -190,7 +190,7 @@ const Admin = {
   async packagesStatus(dates) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
-      driver: sqlite3.database,
+      driver: sqlite3.Database,
     });
     const metadata = await db.all(
       `SELECT Package.Category, COUNT(*)
@@ -209,7 +209,7 @@ const Admin = {
   async packagesTravelingStatus(dates) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
-      driver: sqlite3.database,
+      driver: sqlite3.Database,
     });
     const metadata = await db.all(
       `SELECT Package.pStatus, COUNT(*)
@@ -227,7 +227,7 @@ const User = {
   async tracePackage(pckg) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
-      driver: sqlite3.database,
+      driver: sqlite3.Database,
     });
     const metadata = await db.all(
       `SELECT  History_of_Locations.SurrogateLocation, History_of_Locations.Date
@@ -261,7 +261,7 @@ const User = {
   async addPayment(usr) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
-      driver: sqlite3.database,
+      driver: sqlite3.Database,
     });
     const metadata = await db.run(
       `INSERT INTO Payment(Usr_SSN, PackageNum, Amount)
@@ -275,7 +275,7 @@ const User = {
   async SendPackage(pckg) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
-      driver: sqlite3.database,
+      driver: sqlite3.Database,
     });
     const metadata = await db.run(
       `INSERT INTO Package(PackageNum, Category, pValue, 
@@ -294,7 +294,7 @@ const User = {
   async getSentPckgs(U_SSN) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
-      driver: sqlite3.database,
+      driver: sqlite3.Database,
     });
     const metadata = await db.all(
       `SELECT * FROM Package WHERE Sender_SSN = ${U_SSN}`
@@ -307,13 +307,30 @@ const User = {
   async getRecievedPckgs(U_SSN) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
-      driver: sqlite3.database,
+      driver: sqlite3.Database,
     });
     const metadata = await db.all(
       `SELECT * FROM Package WHERE Reciever_SSN = ${U_SSN}`
     );
     await db.close();
     return metadata;
+  },
+
+  //Check if a certain user is an admin or not
+  async isAdmin(U_SSN) {
+    const db = await sqlite.open({
+      filename: "../pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+
+    const isAdmin = await db.all(
+      `SELECT COUNT(1)
+      FROM Admin
+      WHERE U_SSN = ${U_SSN}`
+    );
+
+    await db.close();
+    return isAdmin[0]["COUNT(1)"] == true;
   },
 };
 module.exports = {

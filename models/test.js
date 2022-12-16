@@ -19,13 +19,15 @@ const pckg = {
 };
 
 //Checking whats gonna be given to the DB
-console.log(`INSERT INTO Package(PackageNum, Category, pValue, 
-  Width, Height, Length, Weight, Insurance_amount, pStatus, FinalDeliveryDate,
-  Sender_SSN, Reciever_SSN, RtlCenter_ID)
-  VALUES (${pckg.PackageNum},${pckg.Category},
-  ${pckg.pValue},${pckg.Width},${pckg.Height},${pckg.Length},
-  ${pckg.Weight},${pckg.Insurance_amount},${pckg.pStatus},${pckg.FinalDeliveryDate},
-  ${pckg.Sender_SSN},${pckg.Reciever_SSN},${pckg.RtlCenter_ID})`);
+// console.log(`INSERT INTO Package(PackageNum, Category, pValue,
+//   Width, Height, Length, Weight, Insurance_amount, FinalDeliveryDate,
+//   Sender_SSN, Reciever_SSN, RtlCenter_ID)
+//   VALUES (${pckg.PackageNum},${pckg.Category},
+//   ${pckg.pValue},${pckg.Width},${pckg.Height},${pckg.Length},
+//   ${pckg.Weight},${pckg.Insurance_amount}s,${pckg.FinalDeliveryDate},
+//   ${pckg.Sender_SSN},${pckg.Reciever_SSN},${pckg.RtlCenter_ID})`);
 
-//Checking if any errors appear
-console.log(Package.addPackage(pckg));
+//Put ur testing code here
+(async () => {
+  console.log(await User.isAdmin(321));
+})();
