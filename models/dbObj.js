@@ -1,3 +1,6 @@
+const sqlite = require("sqlite");
+const sqlite3 = require("sqlite3");
+
 const Package = {
   async addPackage(pckg) {
     const db = await sqlite.open({
