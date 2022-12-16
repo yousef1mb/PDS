@@ -200,6 +200,23 @@ const Admin = {
   },
 
   /* ================END OF REPORTS================*/
+  //  List all lost/delayed/delivered packages between two dates
+
+  async packagesTravelingStatus(dates) {
+    const db = await sqlite.open({
+      filename: "pckg_dlv.db",
+      driver: sqlite3.database,
+    });
+    const metadata = await db.all(
+      `SELECT Package.Status, COUNT(*)
+      FROM Package, History_of_location
+      WHERE Package.PackageNum = History_of_location.PackageNum AND
+      History_of_location.date BETWEEN ${dates.initialDate} AND ${dates.finalDate}
+      GROUP BY Package.Status`
+    );
+    await db.close();
+    return metadata;
+  },
 };
 
 const User = {
