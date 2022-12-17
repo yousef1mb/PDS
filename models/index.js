@@ -173,7 +173,7 @@ const Package = {
     return false;
   },
 
-  //NOT TESTED
+  //TESTED
   //(Report)
   async getPackageTraceback(pckg) {
     const db = await sqlite.open({
@@ -188,17 +188,17 @@ const Package = {
     );
     const tableName = ["Truck", "Warehouse", "Plane", "Airport"];
     var currentState;
-    for (let j = 0; j++; j < 2) {
-      for (let i = 0; i++; i < tableName.length) {
-        currentState = db.all(`
+    for (let j = 0; j < 2; j++) {
+      for (let i = 0; i < tableName.length; i++) {
+        currentState =  await db.all(`
         SELECT *
         FROM ${tableName[i]}
-        WHERE ${metadata[j].Lsurrogate} = Truck.Lsurrogate
+        WHERE ${metadata[j].Lsurrogate} = ${tableName[i] + '.' + 'Lsurrogate'}
         `);
-        if (currentState != null) {
-          if (tableName[i] == "Warehouse" || "Airport") {
+        if (currentState[0] != null) {
+          if (tableName[i] == "Warehouse" || tableName[i] == "Airport") {
             await db.close();
-            return currentState.City;
+            return currentState[0].City;
           }
         }
       }
@@ -207,6 +207,7 @@ const Package = {
     await db.close();
     return false;
   },
+
 
   //NOT TESTED
   //(Report)
