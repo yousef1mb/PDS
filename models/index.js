@@ -209,7 +209,7 @@ const Package = {
   },
 
 
-  //NOT TESTED
+  //Tested
   //(Report)
   //List all packages based on (category, city, status)
   async customTracking(info) {
@@ -217,35 +217,22 @@ const Package = {
       filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
     });
-
-
     const metadata = await db.all(
-      `SELECT PackageNum FROM Package
-      WHERE Category = '${info.Category}' AND PackageNum IN
-      (SELECT PackageNum from(
-        SELECT PackageNum, pStatus
-        FROM pckgStatus GROUP BY PackageNum
-        HAVING max(pDate))
-        WHERE pStatus = '${info.pStatus}')`
+      `SELECT Package.PackageNum FROM Package, pckgStatus
+      WHERE pckgStatus.PackageNum = Package.PackageNum  and '${info.Category}' = Package.Category and '${info.pStatus}' = pckgStatus.pStatus`
     );
-
-    let str = "";
-    for (i = 0; i < metadata.length; i++) {
-      if (getPackageTraceback(metadata[i]["PackageNum"]) == info.City){
-        str = str +  i["PackageNum"] + ", ";
+    var pckgs = [];
+    for( let i = 0; i < metadata.length; i++) {
+      if(Package.getPackageTraceback(metadata[i].PackageNum)==info.city) {
+        pckgNumbers.push(await db.all(
+          `SELECT * from Package
+          where Package.PackageNum = '${metadata[i].PackageNum}' `
+        ));
       }
-    } 
-
-    const metadata2 = await db.all(
-      `SELECT * FROM Package
-      WHERE PackageNum IN (${str})`
-    );
-
-
-    
+    }    
     await db.close();
     // you might return founds.length for counting the total number
-    return metadata2;
+    return pckgs;
   },
 
   //WORKS

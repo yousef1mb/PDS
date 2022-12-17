@@ -50,7 +50,8 @@ const dates = {
 
 const info = {
   Category:"Liquid",
-  pStatus:"Delivered"
+  pStatus:"Delivered",
+  city: "riyadh"
 };
 //Checking whats gonna be given to the DB
 // console.log(`SELECT Category, COUNT(*)
