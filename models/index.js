@@ -19,6 +19,10 @@ const Package = {
        ${pckg.Sender_SSN},${pckg.Reciever_SSN},${pckg.RtlCenter_ID})`
     );
 
+    const metadata2 = await db.run(`
+    INSERT INTO pckgStatus(PackageNum, pStatus, pDate)
+    VALUES (${pckg.PackageNum}, "Transit", SYSDATETIME())`)
+
     await db.close();
     return true;
   },
@@ -177,29 +181,29 @@ const Package = {
       driver: sqlite3.Database,
     });
     const metadata = await db.all(
-      `SELECT  History_of_Locations.SurrogateLocation, History_of_Locations.Date
-      from Package, History_of_Locations
-      where History_of_Locations.PackageNum = ${pckg.PackageNum} 
-      ORDER BY History_of_Locations.Date DESC;`
+      `SELECT  History_of_location.Lsurrogate, History_of_location.Date
+      from Package, History_of_location
+      where History_of_location.PackageNum = ${pckg.PackageNum} 
+      ORDER BY History_of_location.Date DESC;`
     );
-    const srglocation = metadata[0].SurrogateLocation;
     const tableName = ["Truck", "Warehouse", "Plane", "Airport"];
     var currentState;
-    for (let i = 0; i++; i < tableName.length) {
-      currentState = db.all(`
-      SELECT *
-      FROM ${tableName[i]}
-      WHERE ${srglocation} = Truck.SurrogateLocation
-      `);
-      if (currentState != null) {
-        await db.close();
-        if (tableName[i] == "Warehouse" || "Airport") {
-          return currentState.City;
-        } else {
-          return currentState;
+    for (let j = 0; j++; j < 2) {
+      for (let i = 0; i++; i < tableName.length) {
+        currentState = db.all(`
+        SELECT *
+        FROM ${tableName[i]}
+        WHERE ${metadata[j].Lsurrogate} = Truck.Lsurrogate
+        `);
+        if (currentState != null) {
+          if (tableName[i] == "Warehouse" || "Airport") {
+            await db.close();
+            return currentState.City;
+          }
         }
       }
     }
+
     await db.close();
     return false;
   },
@@ -215,7 +219,7 @@ const Package = {
 
 
     const metadata = await db.all(
-      `SELECT * FROM Package
+      `SELECT PackageNum FROM Package
       WHERE Category = '${info.Category}' AND PackageNum IN
       (SELECT PackageNum from(
         SELECT PackageNum, pStatus
@@ -223,10 +227,24 @@ const Package = {
         HAVING max(pDate))
         WHERE pStatus = '${info.pStatus}')`
     );
+
+    let str = "";
+    for (i = 0; i < metadata.length; i++) {
+      if (getPackageTraceback(metadata[i]["PackageNum"]) == info.City){
+        str = str +  i["PackageNum"] + ", ";
+      }
+    } 
+
+    const metadata2 = await db.all(
+      `SELECT * FROM Package
+      WHERE PackageNum IN (${str})`
+    );
+
+
     
     await db.close();
     // you might return founds.length for counting the total number
-    return metadata;
+    return metadata2;
   },
 
   //WORKS
@@ -310,7 +328,7 @@ const Payment = {
   },
 };
 
-//ALL OF USER FUNCTIONS TESTED AND WORK
+//ALL OF USER FUNCTIONS TESTED AND WORK (except last 2)
 const User = {
   //WORKS
   //Add user to DB
@@ -357,7 +375,8 @@ const User = {
       driver: sqlite3.Database,
     });
 
-    const metadata = await db.run(`DELETE FROM sysUSer WHERE U_SSN = ${U_SSN}`);
+    const metadata = await db.run(`DELETE FROM sysUser WHERE U_SSN = ${U_SSN}`);
+    const metadata1 = await db.run(`DELETE FROM Customer WHERE U_SSN = ${U_SSN}`);
     const metadata2 = await db.run(`DELETE FROM Admin WHERE U_SSN = ${U_SSN}`);
 
     await db.close();
@@ -435,6 +454,7 @@ const User = {
     return false;
   },
 
+  //WORKS
   async setCustomer(U_SSN) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
@@ -449,6 +469,7 @@ const User = {
     return true;
   },
 
+  //WORKS
   async setAdmin(U_SSN) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
