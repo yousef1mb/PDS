@@ -13,7 +13,7 @@ const Package = {
       `INSERT INTO Package(PackageNum, Category, pValue, 
        Width, Height, Length, Weight, Insurance_amount, FinalDeliveryDate,
        Sender_SSN, Reciever_SSN, RtlCenter_ID)
-       VALUES (${pckg.PackageNum},${pckg.Category},
+       VALUES (${pckg.PackageNum},'${pckg.Category}',
        ${pckg.pValue},${pckg.Width},${pckg.Height},${pckg.Length},
        ${pckg.Weight},${pckg.Insurance_amount},${pckg.FinalDeliveryDate},
        ${pckg.Sender_SSN},${pckg.Reciever_SSN},${pckg.RtlCenter_ID})`
@@ -32,7 +32,7 @@ const Package = {
 
     const metadata = await db.run(
       `UPDATE Package SET
-         Category = ${pckg.Category}, pValue = ${pckg.pValue}, 
+         Category = '${pckg.Category}', pValue = ${pckg.pValue}, 
          Width = ${pckg.Width}, Height = ${pckg.Height}, Length = ${pckg.Length},
          Weight = ${pckg.Weight}, Insurance_amount = ${pckg.Insurance_amount},
          FinalDeliveryDate = ${pckg.FinalDeliveryDate},
@@ -289,9 +289,9 @@ const User = {
 
     const metadata = await db.run(
       `INSERT INTO sysUser(U_SSN, Fname, Mname, Lname, Phone, Email, Password)
-           VALUES (${user.U_SSN}, ${user.Fname},
-           ${user.Mname},${user.Lname},${user.Phone},${user.Email},
-           ${user.Password})`
+           VALUES (${user.U_SSN}, '${user.Fname}',
+           '${user.Mname}','${user.Lname}','${user.Phone}','${user.Email}',
+           '${user.Password}')`
     );
 
     await db.close();
@@ -340,9 +340,9 @@ const User = {
 
     const metadata = await db.run(
       `UPDATE sysUser SET
-        U_SSN = ${user.U_SSN}, Fname = ${user.Fname}, 
-        Mname = ${user.Mname}, Lname = ${user.Lname}, Phone = ${user.Phone},
-        Email = ${user.Email}, Password = ${user.Password}`
+        U_SSN = ${user.U_SSN}, Fname = '${user.Fname}', 
+        Mname = '${user.Mname}', Lname = '${user.Lname}', Phone = '${user.Phone}',
+        Email = '${user.Email}', Password = '${user.Password}'`
     );
 
     await db.close();
@@ -388,7 +388,7 @@ const User = {
     });
 
     const metadata = await db.all(
-      `SELECT * FROM sysUser WHERE Email = ${Email}`
+      `SELECT * FROM sysUser WHERE Email = '${Email}'`
     );
 
     await db.close();
