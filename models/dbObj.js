@@ -1,9 +1,13 @@
 const sqlite = require("sqlite");
 const sqlite3 = require("sqlite3");
 
+// const Admin = {
+//   /* ===================REPORTS===================*/
+//   /* ================END OF REPORTS================*/
+// };
+
 const Package = {
-  //WORKS
-  async addPackage(pckg) {
+  async create(pckg) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
@@ -22,22 +26,7 @@ const Package = {
     await db.close();
     return true;
   },
-
-  async removePackage(pckg) {
-    const db = await sqlite.open({
-      filename: "../pckg_dlv.db",
-      driver: sqlite3.Database,
-    });
-
-    const metadata = await db.run(
-      `DELETE FROM Package WHERE PackageNum = ${pckg.PackageNum}`
-    );
-
-    await db.close();
-    return true;
-  },
-
-  async editPackage(pckg) {
+  async update(pckg) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
@@ -57,75 +46,20 @@ const Package = {
     await db.close();
     return true;
   },
-};
-
-const Admin = {
-  //Add user to DB
-  async addUser(user) {
+  async delete(pckg) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
     });
 
     const metadata = await db.run(
-      `INSERT INTO sysUser(U_SSN, Fname, Mname, Lname, Phone, Email, Password)
-           VALUES (${user.U_SSN}, ${user.Fname},
-           ${user.Mname},${user.Lname},${user.Phone},${user.Email},
-           ${user.Password})`
+      `DELETE FROM Package WHERE PackageNum = ${pckg.PackageNum}`
     );
 
     await db.close();
     return true;
   },
-
-  //Remove certain user from DB by ID
-  async removeUser(user) {
-    const db = await sqlite.open({
-      filename: "../pckg_dlv.db",
-      driver: sqlite3.Database,
-    });
-
-    const metadata = await db.run(
-      `DELETE FROM sysUSer WHERE U_SSN = ${user.U_SSN}`
-    );
-
-    await db.close();
-    return true;
-  },
-
-  //Edit certain user info by ID
-  async editUser(user) {
-    const db = await sqlite.open({
-      filename: "../pckg_dlv.db",
-      driver: sqlite3.Database,
-    });
-
-    const metadata = await db.run(
-      `UPDATE sysUser SET
-        U_SSN = ${user.U_SSN}, Fname = ${user.Fname}, 
-        Mname = ${user.Mname}, Lname = ${user.Lname}, Phone = ${user.Phone},
-        Email = ${user.Email}, Password = ${user.Password}`
-    );
-
-    await db.close();
-    return true;
-  },
-
-  //get All the users on the site
-  async getAllUsers() {
-    const db = await sqlite.open({
-      filename: "../pckg_dlv.db",
-      driver: sqlite3.Database,
-    });
-
-    const metadata = await db.all(`SELECT * FROM sysUser`);
-
-    await db.close();
-    return metadata;
-  },
-
-  //get All the packages on the site
-  async getAllPackages() {
+  async getAll() {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
@@ -136,95 +70,7 @@ const Admin = {
     await db.close();
     return metadata;
   },
-
-  /* ===================REPORTS===================*/
-
-  //All confirmed payments report
-  async allConfirmedPayments() {
-    const db = await sqlite.open({
-      filename: "../pckg_dlv.db",
-      driver: sqlite3.Database,
-    });
-    const metadata = await db.all(
-      `SELECT *
-        FROM Payment`
-    );
-    await db.close();
-    return metadata;
-  },
-
-  //This function lists all packages either sent or recieved by a certain user
-  async SntRcvReport(U_SSN) {
-    const db = await sqlite.open({
-      filename: "../pckg_dlv.db",
-      driver: sqlite3.Database,
-    });
-
-    const metadata = await db.all(`SELECT * FROM Packages
-    WHERE Sender_SSN = ${U_SSN} OR Reciever_SSN = ${U_SSN}`);
-
-    await db.close();
-    return metadata;
-  },
-
-  async customTracking(info) {
-    const db = await sqlite.open({
-      filename: "../pckg_dlv.db",
-      driver: sqlite3.Database,
-    });
-
-    const metadata = await db.all(`SELECT Package.PackageNum FROM Package
-    WHERE Category = ${info.Category} AND pStatus = ${info.pStatus}`);
-    var founds = [];
-    for (let i = 0; i++; i < metadata.length) {
-      if (User.tracePackage(metadata[i]) == info.City) {
-        founds.push(metadata[i]);
-      }
-    }
-    await db.close();
-    // you might return founds.length for counting the total number
-    return founds;
-  },
-
-  //List all packages between a certain date based on package status
-  async packagesStatus(dates) {
-    const db = await sqlite.open({
-      filename: "../pckg_dlv.db",
-      driver: sqlite3.Database,
-    });
-    const metadata = await db.all(
-      `SELECT Package.Category, COUNT(*)
-      FROM sysUser, History_of_location
-      WHERE Package.PackageNum = History_of_location.PackageNum AND
-      History_of_location.date BETWEEN ${dates.initialDate} AND ${dates.finalDate}
-      GROUP BY Package.Category`
-    );
-    await db.close();
-    return metadata;
-  },
-
-  /* ================END OF REPORTS================*/
-  //  List all lost/delayed/delivered packages between two dates
-
-  async packagesTravelingStatus(dates) {
-    const db = await sqlite.open({
-      filename: "../pckg_dlv.db",
-      driver: sqlite3.Database,
-    });
-    const metadata = await db.all(
-      `SELECT Package.pStatus, COUNT(*)
-      FROM Package, History_of_location
-      WHERE Package.PackageNum = History_of_location.PackageNum AND
-      History_of_location.date BETWEEN ${dates.initialDate} AND ${dates.finalDate}
-      GROUP BY Package.pStatus`
-    );
-    await db.close();
-    return metadata;
-  },
-};
-
-const User = {
-  async tracePackage(pckg) {
+  async getPackageTraceback(pckg) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
@@ -256,40 +102,6 @@ const User = {
     await db.close();
     return false;
   },
-
-  //Adds amount of payment to the db to considered confirmed payment later
-  async addPayment(usr) {
-    const db = await sqlite.open({
-      filename: "../pckg_dlv.db",
-      driver: sqlite3.Database,
-    });
-    const metadata = await db.run(
-      `INSERT INTO Payment(Usr_SSN, PackageNum, Amount)
-      VALUES (${usr.Usr_SSN}, ${usr.PackageNum}, ${usr.Amount})`
-    );
-    await db.close();
-    return true;
-  },
-
-  //This adds sent package info
-  async SendPackage(pckg) {
-    const db = await sqlite.open({
-      filename: "../pckg_dlv.db",
-      driver: sqlite3.Database,
-    });
-    const metadata = await db.run(
-      `INSERT INTO Package(PackageNum, Category, pValue, 
-         Width, Height, Length, Weight, Insurance_amount, pStatus, FinalDeliveryDate,
-         Sender_SSN, Reciever_SSN, RtlCenter_ID)
-         VALUES (${pckg.PackageNum},${pckg.Category},
-         ${pckg.pValue},${pckg.Width},${pckg.Height},${pckg.Length},
-         ${pckg.Weight},${pckg.Insurance_amount},${pckg.pStatus},${pckg.FinalDeliveryDate},
-         ${Sender_SSN},${Reciever_SSN},${pckg.RtlCenter_ID})`
-    );
-    await db.close();
-    return true;
-  },
-
   //get all sent packages by a specific user
   async getSentPckgs(U_SSN) {
     const db = await sqlite.open({
@@ -302,7 +114,6 @@ const User = {
     await db.close();
     return metadata;
   },
-
   //get all recieved packages by a specific user
   async getRecievedPckgs(U_SSN) {
     const db = await sqlite.open({
@@ -316,6 +127,123 @@ const User = {
     return metadata;
   },
 
+  //This function lists all packages either sent or recieved by a certain user (Report)
+  async SntRcvReport(U_SSN) {
+    const db = await sqlite.open({
+      filename: "../pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+
+    const metadata = await db.all(`SELECT * FROM Packages
+    WHERE Sender_SSN = ${U_SSN} OR Reciever_SSN = ${U_SSN}`);
+
+    await db.close();
+    return metadata;
+  },
+
+  // (Report)
+  async customTracking(info) {
+    const db = await sqlite.open({
+      filename: "../pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+
+    const metadata = await db.all(`SELECT Package.PackageNum FROM Package
+    WHERE Category = ${info.Category} AND pStatus = ${info.pStatus}`);
+    var founds = [];
+    for (let i = 0; i++; i < metadata.length) {
+      if (User.tracePackage(metadata[i]) == info.City) {
+        founds.push(metadata[i]);
+      }
+    }
+    await db.close();
+    // you might return founds.length for counting the total number
+    return founds;
+  },
+
+  //List all packages between a certain date based on package status  (Report)
+  async packagesStatus(dates) {
+    const db = await sqlite.open({
+      filename: "../pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+    const metadata = await db.all(
+      `SELECT Package.Category, COUNT(*)
+      FROM sysUser, History_of_location
+      WHERE Package.PackageNum = History_of_location.PackageNum AND
+      History_of_location.date BETWEEN ${dates.initialDate} AND ${dates.finalDate}
+      GROUP BY Package.Category`
+    );
+    await db.close();
+    return metadata;
+  },
+
+  //  List all lost/delayed/delivered packages between two dates (Report)
+  async packagesTravelingStatus(dates) {
+    const db = await sqlite.open({
+      filename: "../pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+    const metadata = await db.all(
+      `SELECT Package.pStatus, COUNT(*)
+      FROM Package, History_of_location
+      WHERE Package.PackageNum = History_of_location.PackageNum AND
+      History_of_location.date BETWEEN ${dates.initialDate} AND ${dates.finalDate}
+      GROUP BY Package.pStatus`
+    );
+    await db.close();
+    return metadata;
+  },
+};
+
+const Payment = {
+  //Adds amount of payment to the db to considered confirmed payment later
+  async add(usr) {
+    const db = await sqlite.open({
+      filename: "../pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+    const metadata = await db.run(
+      `INSERT INTO Payment(Usr_SSN, PackageNum, Amount)
+      VALUES (${usr.Usr_SSN}, ${usr.PackageNum}, ${usr.Amount})`
+    );
+    await db.close();
+    return true;
+  },
+
+  //All confirmed payments report (Report)
+  async allConfirmedPayments() {
+    const db = await sqlite.open({
+      filename: "../pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+    const metadata = await db.all(
+      `SELECT *
+        FROM Payment`
+    );
+    await db.close();
+    return metadata;
+  },
+};
+
+const User = {
+  //Add user to DB
+  async create(user) {
+    const db = await sqlite.open({
+      filename: "../pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+
+    const metadata = await db.run(
+      `INSERT INTO sysUser(U_SSN, Fname, Mname, Lname, Phone, Email, Password)
+           VALUES (${user.U_SSN}, ${user.Fname},
+           ${user.Mname},${user.Lname},${user.Phone},${user.Email},
+           ${user.Password})`
+    );
+
+    await db.close();
+    return true;
+  },
   //Check if a certain user is an admin or not
   async isAdmin(U_SSN) {
     const db = await sqlite.open({
@@ -332,9 +260,53 @@ const User = {
     await db.close();
     return isAdmin[0]["COUNT(1)"] == true;
   },
+  //Remove certain user from DB by ID
+  async delete(user) {
+    const db = await sqlite.open({
+      filename: "../pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+
+    const metadata = await db.run(
+      `DELETE FROM sysUSer WHERE U_SSN = ${user.U_SSN}`
+    );
+
+    await db.close();
+    return true;
+  },
+
+  //Edit certain user info by ID
+  async update(user) {
+    const db = await sqlite.open({
+      filename: "../pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+
+    const metadata = await db.run(
+      `UPDATE sysUser SET
+        U_SSN = ${user.U_SSN}, Fname = ${user.Fname}, 
+        Mname = ${user.Mname}, Lname = ${user.Lname}, Phone = ${user.Phone},
+        Email = ${user.Email}, Password = ${user.Password}`
+    );
+
+    await db.close();
+    return true;
+  },
+
+  async getAll() {
+    const db = await sqlite.open({
+      filename: "../pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+
+    const metadata = await db.all(`SELECT * FROM sysUser`);
+
+    await db.close();
+    return metadata;
+  },
 };
 module.exports = {
   Package,
-  Admin,
+  Payment,
   User,
 };
