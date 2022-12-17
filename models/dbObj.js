@@ -1,12 +1,8 @@
 const sqlite = require("sqlite");
 const sqlite3 = require("sqlite3");
 
-// const Admin = {
-//   /* ===================REPORTS===================*/
-//   /* ================END OF REPORTS================*/
-// };
-
 const Package = {
+  //WORKS
   async create(pckg) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
@@ -15,17 +11,19 @@ const Package = {
 
     const metadata = await db.run(
       `INSERT INTO Package(PackageNum, Category, pValue, 
-       Width, Height, Length, Weight, Insurance_amount, pStatus, FinalDeliveryDate,
+       Width, Height, Length, Weight, Insurance_amount, FinalDeliveryDate,
        Sender_SSN, Reciever_SSN, RtlCenter_ID)
        VALUES (${pckg.PackageNum},${pckg.Category},
        ${pckg.pValue},${pckg.Width},${pckg.Height},${pckg.Length},
-       ${pckg.Weight},${pckg.Insurance_amount},${pckg.pStatus},${pckg.FinalDeliveryDate},
+       ${pckg.Weight},${pckg.Insurance_amount},${pckg.FinalDeliveryDate},
        ${pckg.Sender_SSN},${pckg.Reciever_SSN},${pckg.RtlCenter_ID})`
     );
 
     await db.close();
     return true;
   },
+
+  //WORKS
   async update(pckg) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
@@ -37,15 +35,17 @@ const Package = {
          Category = ${pckg.Category}, pValue = ${pckg.pValue}, 
          Width = ${pckg.Width}, Height = ${pckg.Height}, Length = ${pckg.Length},
          Weight = ${pckg.Weight}, Insurance_amount = ${pckg.Insurance_amount},
-         pStatus = ${pckg.pStatus}, FinalDeliveryDate = ${pckg.FinalDeliveryDate},
+         FinalDeliveryDate = ${pckg.FinalDeliveryDate},
          Sender_SSN = ${pckg.Sender_SSN}, Reciever_SSN = ${pckg.Reciever_SSN}, 
-         RtlCenter_ID ${pckg.RtlCenter_ID}
+         RtlCenter_ID = ${pckg.RtlCenter_ID}
          WHERE PackageNum = ${pckg.PackageNum}`
     );
 
     await db.close();
     return true;
   },
+
+  //WORKS
   async delete(pckg) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
@@ -59,6 +59,26 @@ const Package = {
     await db.close();
     return true;
   },
+
+  //WORKS
+  async get(PackageNum) {
+    const db = await sqlite.open({
+      filename: "../pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+
+    const metadata = await db.all(
+      `SELECT * FROM Package WHERE PackageNum = ${PackageNum}`
+    );
+
+    await db.close();
+    if (metadata.length != 0) {
+      return metadata;
+    }
+    return false;
+  },
+
+  //WORKS
   async getAll() {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
@@ -303,6 +323,42 @@ const User = {
 
     await db.close();
     return metadata;
+  },
+
+  //WORKS
+  async getBySSN(U_SSN) {
+    const db = await sqlite.open({
+      filename: "../pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+
+    const metadata = await db.all(
+      `SELECT * FROM sysUser WHERE U_SSN = ${U_SSN}`
+    );
+
+    await db.close();
+    if (metadata.length != 0) {
+      return metadata;
+    }
+    return false;
+  },
+
+  //WORKS
+  async getByEmail(Email) {
+    const db = await sqlite.open({
+      filename: "../pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+
+    const metadata = await db.all(
+      `SELECT * FROM sysUser WHERE Email = ${Email}`
+    );
+
+    await db.close();
+    if (metadata.length != 0) {
+      return metadata;
+    }
+    return false;
   },
 };
 module.exports = {
