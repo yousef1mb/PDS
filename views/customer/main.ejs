@@ -2,10 +2,10 @@
 
 <div class="jumbotron jumbotron-fluid my-5">
   <div class="container">
-    <h1 class="display-4">Hello <%= customer.fname %></h1>
+    <h1 class="display-4">Hello <%= customer.Fname %></h1>
     <p class="lead">This is the customer page you can check your capabilities from above</p>
 
-    <form action="/customers/<%= customer.ssn %>/packages" method="get">
+    <form action="/customers/<%= customer.U_SSN %>/packages" method="get">
       <p class="lead">Also you can search for your own package here</p>
       <div class="form-group">
         <label for="packageID">Type here your package number</label>

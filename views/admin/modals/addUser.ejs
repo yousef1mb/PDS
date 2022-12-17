@@ -1,8 +1,8 @@
-<div class="modal fade" id="adduser" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="adduserLabel" aria-hidden="true">
+<div class="modal fade" id="addUser" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="addUserLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="adduserLabel">Add User</h5>
+        <h5 class="modal-title" id="addUserLabel">Add User</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -12,36 +12,36 @@
 
           <div class="form-group">
             <label for="ssn">Social Number</label>
-            <input type="number" min="0" max="10000000000" class="form-control" name="ssn" id="ssn">
+            <input required type="number" min="0" max="10000000000" class="form-control" name="ssn" id="ssn">
           </div>
           <div class="form-group">
             <label for="fname">Firt name</label>
-            <input type="text" class="form-control" name="fname" id="fname">
+            <input required type="text" class="form-control" name="fname" id="fname">
           </div>
 
           <div class="form-group">
             <label for="mname">Middle name</label>
-            <input type="text" class="form-control" name="mname" id="mname">
+            <input required type="text" class="form-control" name="mname" id="mname">
           </div>
 
           <div class="form-group">
             <label for="lname">Last name</label>
-            <input type="text" class="form-control" name="lname" id="lname">
+            <input required type="text" class="form-control" name="lname" id="lname">
           </div>
 
           <div class="form-group">
             <label for="phone">Phone</label>
-            <input type="text" class="form-control" name="phone" id="phone">
+            <input required type="text" class="form-control" name="phone" id="phone">
           </div>
 
           <div class="form-group">
             <label for="email">Email</label>
-            <input type="email" class="form-control" name="email" id="email">
+            <input required type="email" class="form-control" name="email" id="email">
           </div>
 
           <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" class="form-control" name="password" id="password">
+            <input required type="password" class="form-control" name="password" id="password">
           </div>
           
           <div class="form-group">

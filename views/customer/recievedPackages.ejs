@@ -17,16 +17,16 @@
       <% if (packages.length) { %>
         <% packages.forEach( package => { %>
           <tr>
-            <th scope="row"><a href="/customers/<%= customer.ssn %>/packages/?q=<%= package.packageNum%>"><%= package.packageNum%></a></th>
-            <td><%= package.category %></td>
-            <td>$<%= package.insurance %></td>
-            <td>$<%= package.value %></td>
+            <th scope="row"><a href="/customers/<%= customer.U_SSN %>/packages/?q=<%= package.PackageNum%>"><%= package.PackageNum%></a></th>
+            <td><%= package.Category %></td>
+            <td>$<%= Math.round(package.Insurance_amount * 100)/ 100 %></td>
+            <td>$<%= package.pValue %></td>
             <td><%= package.status %></td>
             <% if (package.status === 'delivered') { %>
               <td>recieved!</td>
             <% } else { %>
               <td>
-                <form action="/customers/<%= customer.ssn %>/recieve/<%= package.packageNum%>" method="post">
+                <form action="/customers/<%= customer.U_SSN %>/recieve/<%= package.PackageNum%>" method="post">
                   <button type="submit" class="btn btn-success">Recieve</button>
                 </form>
               </td>

@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
-
+const auth = require("../middlewares/auth");
 const admin = require("../controllers/admin.controller");
 
-router.get("/", admin.getAdminPage);
+router.get("/", auth.userAuth, admin.getAdminPage);
 
 // For reports
 router.get("/reports", admin.getReportsPage); //done

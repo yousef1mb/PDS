@@ -1,4 +1,5 @@
 const { User } = require("../models/dbObj");
+const jwt = require("jsonwebtoken");
 
 const getMainPage = async (req, res) => {
   return res.render("main");
@@ -18,6 +19,14 @@ const login = async (req, res) => {
     return res.render("loginError");
   }
 
+  const token = jwt.sign({ user }, "PDS secret to verify tokens");
+  res.cookie("token", token, {
+    expires: new Date(
+      Date.now() + 120 * 24 * 60 * 60 * 1000 // 120 days
+    ),
+    httpOnly: true,
+  });
+
   const isAdmin = await User.isAdmin(user.U_SSN);
 
   if (isAdmin) {
@@ -25,14 +34,6 @@ const login = async (req, res) => {
   } else {
     return res.redirect("/customers/" + user.U_SSN);
   }
-  // if (req.body.email === "admin@pds.com") {
-  //   if (req.body.password === "admin123123") {
-  //   } else {
-  //     return res.render("loginError");
-  //   }
-  // } else {
-  //   const customer = { ssn: 753343245 };
-  // }
 };
 
 const logout = async (req, res) => {

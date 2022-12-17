@@ -19,12 +19,12 @@
       <% if (packages.length) { %>
         <% packages.forEach( package => { %>
           <tr>
-            <th scope="row"><a href="/admin/packages/<%= package.packageNum%>"><%= package.packageNum%></a></th>
+            <th scope="row"><a href="/admin/packages/<%= package.PackageNum%>"><%= package.PackageNum%></a></th>
             <td><%= package.status %></td>
-            <td><%= package.category %></td>
-            <td><%= package.insurance %></td>
+            <td><%= package.Category %></td>
+            <td>$<%= Math.round(package.Insurance_amount * 100) /100 %></td>
             <td>
-              <form action="/admin/packages/<%= package.packageNum %>/delete" method="post">
+              <form action="/admin/packages/<%= package.PackageNum %>/delete" method="post">
                 <button type="submit" class="btn btn-danger">
                   Delete
                 </button>

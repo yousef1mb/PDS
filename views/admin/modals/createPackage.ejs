@@ -12,51 +12,56 @@
 
           <div class="form-group">
             <label for="value">Value</label>
-            <input type="number" min="0" max="100000" class="form-control" name="value" id="value">
+            <input required type="number" min="0" max="100000" class="form-control" name="value" id="value">
           </div>
 
           <div class="form-group">
             <label for="category">Category</label>
-            <select class="form-control" name="category" id="category">
-              <option value="fragile">Fragile</option>
-              <option value="regular">Regular</option>
-              <option value="liquid">Liquid</option>
-              <option value="chemical">Chemical</option>
+            <select required class="form-control" name="category" id="category">
+              <option value="Fragile">Fragile</option>
+              <option value="Regular">Regular</option>
+              <option value="Liquid">Liquid</option>
+              <option value="Chemical">Chemical</option>
             </select> 
           </div>
           
           <div class="form-group">
             <label for="finalDate">Final Delivery Date</label>
-            <input type="date" class="form-control" id="finalDate" name="finalDate">
+            <input required type="date" class="form-control" id="finalDate" name="finalDate">
           </div>
 
           <div class="form-row">
             <div class="form-group col-md-4">
               <label for="width">Width</label>
-              <input type="number" min="0" class="form-control" id="width" name="width">
+              <input required type="number" min="0" class="form-control" id="width" name="width">
             </div>
             <div class="form-group col-md-4">
               <label for="height">Height</label>
-              <input type="number" min="0" class="form-control" id="height" name="height">
+              <input required type="number" min="0" class="form-control" id="height" name="height">
             </div>
             <div class="form-group col-md-4">
               <label for="length">Length</label>
-              <input type="number" min="0" class="form-control" id="length" name="length">
+              <input required type="number" min="0" class="form-control" id="length" name="length">
             </div>
 
+          </div>
+
+          <div class="form-group">
+            <label for="weight">Weight</label>
+            <input required type="number" min="0" class="form-control" id="weight" name="weight">
           </div>
 
           <div class="form-group">
             <label for="retail">Retail Center ID</label>
-            <input type="text" class="form-control" id="retail" name="retail">
+            <input required type="text" class="form-control" id="retail" name="retail">
           </div>
 
           <div class="form-group">
             <label for="from">From</label>
-            <select class="form-control" name="from" id="from">
+            <select required class="form-control" name="from" id="from">
               <% if (customers.length) { %>
                 <% customers.forEach(customer => { %>
-                    <option value="<%= customer.ssn %>"><%= customer.ssn %> - <%= customer.fname %> <%= customer.lname %></option>
+                    <option value="<%= customer.U_SSN %>"><%= customer.U_SSN %> - <%= customer.Fname %> <%= customer.Lname %></option>
               <% }) } else { %>
                 <option value="">-- No customers yet -- </option>
               <% } %>
@@ -65,10 +70,10 @@
 
           <div class="form-group">
             <label for="to">To</label>
-            <select class="form-control" name="to" id="to">
+            <select required class="form-control" name="to" id="to">
               <% if (customers.length) { %>
                 <% customers.forEach(customer => { %>
-                    <option value="<%= customer.ssn %>"><%= customer.ssn %> - <%= customer.fname %> <%= customer.lname %></option>
+                    <option value="<%= customer.U_SSN %>"><%= customer.U_SSN %> - <%= customer.Fname %> <%= customer.Lname %></option>
               <% }) } else { %>
                 <option value="">-- No customers yet -- </option>
               <% } %>

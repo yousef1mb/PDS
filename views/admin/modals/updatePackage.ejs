@@ -7,48 +7,54 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form action="/admin/packages/<%= package.packageNum %>/update" method="post">
+      <form action="/admin/packages/<%= package.PackageNum %>/update" method="post">
         <div class="modal-body">
 
           <div class="form-group">
             <label for="value">Value</label>
-            <input type="number" min="0" max="100000" class="form-control" id="value">
+            <input required name="value" type="number" min="0" max="100000" value="<%= package.pValue%>" class="form-control" id="value">
           </div>
 
           <div class="form-group">
             <label for="category">Category</label>
-            <select class="form-control" name="category" id="category">
-              <option value="fragile">Fragile</option>
-              <option value="regular">Regular</option>
-              <option value="liquid">Liquid</option>
-              <option value="chemical">Chemical</option>
+            <select required class="form-control" name="category" id="category">
+              <option>-- Select --</option>
+              <option <% if (package.Category === "Fragile") { %> selected <% } %> value="Fragile">Fragile</option>
+              <option <% if (package.Category === "Regular") { %> selected <% } %> value="Regular">Regular</option>
+              <option <% if (package.Category === "Liquid") { %> selected <% } %> value="Liquid">Liquid</option>
+              <option <% if (package.Category === "Chemical") { %> selected <% } %> value="Chemical">Chemical</option>
             </select> 
           </div>
           
           <div class="form-group">
             <label for="finalDate">Final Delivery Date</label>
-            <input type="date" class="form-control" id="finalDate" name="finalDate">
+            <input required type="date" value="<%= package.FinalDeliveryDate%>" class="form-control" id="finalDate" name="finalDate">
           </div>
 
           <div class="form-row">
             <div class="form-group col-md-4">
               <label for="width">Width</label>
-              <input type="number" min="0" class="form-control" id="width" name="width">
+              <input required value="<%= package.Width %>" type="number" min="0" class="form-control" id="width" name="width">
             </div>
             <div class="form-group col-md-4">
               <label for="height">Height</label>
-              <input type="number" min="0" class="form-control" id="height" name="height">
+              <input required value="<%= package.Height %>" type="number" min="0" class="form-control" id="height" name="height">
             </div>
             <div class="form-group col-md-4">
               <label for="length">Length</label>
-              <input type="number" min="0" class="form-control" id="length" name="length">
+              <input required value="<%= package.Length %>" type="number" min="0" class="form-control" id="length" name="length">
             </div>
 
           </div>
 
           <div class="form-group">
+            <label for="weight">Weight</label>
+            <input required value="<%= package.Weight %>" type="number" min="0" class="form-control" id="weight" name="weight">
+          </div>
+
+          <div class="form-group">
             <label for="retail">Retail Center ID</label>
-            <input type="text" class="form-control" id="retail" name="retail">
+            <input required type="text" value="<%= package.RtlCenter_ID%>" class="form-control" id="retail" name="retail">
           </div>
 
         </div>

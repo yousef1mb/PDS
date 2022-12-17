@@ -1,44 +1,132 @@
-const { render } = require("ejs");
+const { User, Package } = require("../models/dbObj");
+const { ID } = require("../utils");
 
 const getAdminPage = async (req, res) => {
-  const admin = {
-    fname: "Admin",
-  };
+  const admin = req.user;
   res.render("admin/main", { admin });
 };
 
 const getReportsPage = async (req, res) => {
-  const customers = [
-    {
-      ssn: "3412452",
-      fname: "Abdulaziz",
-      lname: "Ban Agian",
-    },
-    {
-      ssn: "74154352",
-      fname: "Yousef",
-      lname: "Bukhari",
-    },
-    {
-      ssn: "25435252",
-      fname: "Rayyan",
-      lname: "Redha",
-    },
-  ];
+  let customers = await User.getAll();
+
+  customers = customers.filter(async (customer) => {
+    let isAdmin = await User.isAdmin(customer.U_SSN);
+
+    return !isAdmin;
+  });
   return res.render("admin/reports", { customers });
 };
 
-const addPackage = async (req, res) => {};
+const addPackage = async (req, res) => {
+  let insurance = parseFloat(req.body.value) * 1.11 * 0.2;
+  const package = {
+    PackageNum: ID(),
+    pValue: parseFloat(req.body.value),
+    Category: req.body.category,
+    FinalDeliveryDate: req.body.finalDate,
+    Width: parseFloat(req.body.width),
+    Height: parseFloat(req.body.height),
+    Length: parseFloat(req.body.length),
+    RtlCenter_ID: parseInt(req.body.retail),
+    Insurance_amount: parseFloat(insurance),
+    Sender_SSN: parseInt(req.body.from),
+    Reciever_SSN: parseInt(req.body.to),
+    Weight: parseFloat(req.body.weight),
+  };
+  const isAdded = await Package.create(package);
 
-const removePackage = async (req, res) => {};
+  if (isAdded) {
+    return res.redirect("/admin/packages");
+  }
+  return res.redirect("/admin");
+};
 
-const editPackage = async (req, res) => {};
+const removePackage = async (req, res) => {
+  const package = await Package.get(req.params.num);
+  const isRemoved = await Package.delete(package);
 
-const addUser = async (req, res) => {};
+  if (isRemoved) {
+    return res.redirect("/admin/packages");
+  } else {
+    return res.redirect("/admin");
+  }
+};
 
-const removeUser = async (req, res) => {};
+const editPackage = async (req, res) => {
+  let insurance = parseFloat(req.body.value) * 1.11 * 0.2;
+  const package = {
+    PackageNum: req.params.num,
+    pValue: parseFloat(req.body.value),
+    Category: req.body.category,
+    FinalDeliveryDate: req.body.finalDate,
+    Width: parseFloat(req.body.width),
+    Height: parseFloat(req.body.height),
+    Length: parseFloat(req.body.length),
+    RtlCenter_ID: parseInt(req.body.retail),
+    Insurance_amount: parseFloat(insurance),
+    Weight: parseFloat(req.body.weight),
+  };
+  const isUpdated = await Package.update(package);
 
-const editUser = async (req, res) => {};
+  if (isUpdated) {
+    return res.redirect("/admin/packages/" + req.params.num);
+  } else {
+    return res.redirect("/admin");
+  }
+};
+
+const addUser = async (req, res) => {
+  const user = {
+    U_SSN: req.body.ssn,
+    Fname: req.body.fname,
+    Mname: req.body.mname,
+    Lname: req.body.lname,
+    Phone: req.body.phone,
+    Email: req.body.email,
+    Password: req.body.password,
+  };
+
+  await User.create(user);
+
+  if (req.body.role === "admin") {
+    await User.setAdmin(req.body.ssn);
+  } else {
+    await User.setCustomer(req.body.ssn);
+  }
+
+  return res.redirect("/admin/users");
+};
+
+const removeUser = async (req, res) => {
+  const user = await User.getBySSN(req.params.ssn);
+  const isRemoved = await User.delete(user);
+
+  if (isRemoved) {
+    return res.redirect("/admin/users");
+  } else {
+    return res.redirect("/admin");
+  }
+};
+
+const editUser = async (req, res) => {
+  const user = {
+    U_SSN: req.params.ssn,
+    Fname: req.body.fname,
+    Mname: req.body.mname,
+    Lname: req.body.lname,
+    Phone: req.body.phone,
+    Email: req.body.email,
+    Password: req.body.password,
+  };
+
+  const isUpdated = await User.update(user);
+
+  if (isUpdated) {
+    return res.redirect("/admin/users/" + req.params.ssn);
+  } else {
+    return res.redirect("/admin");
+  }
+};
 
 const getPayments = async (req, res) => {};
 
@@ -51,120 +139,46 @@ const getPackagesBasedOnCustomer = async (req, res) => {};
 const getTrackedPackages = async (req, res) => {};
 
 const getPackages = async (req, res) => {
-  const packages = [
-    {
-      packageNum: "453fdsa3242",
-      status: "transit",
-      category: "Fragile",
-      insurance: "231",
-    },
-    {
-      packageNum: "953gdja5f52",
-      status: "delivered",
-      category: "Fragile",
-      insurance: "331",
-    },
-    {
-      packageNum: "644g2dhyds5",
-      status: "transit",
-      category: "Regular",
-      insurance: "31",
-    },
-  ];
+  const packages = await Package.getAll();
+  let customers = await User.getAll();
 
-  const customers = [
-    {
-      ssn: "3412452",
-      fname: "Abdulaziz",
-      lname: "Ban Agian",
-    },
-    {
-      ssn: "74154352",
-      fname: "Yousef",
-      lname: "Bukhari",
-    },
-    {
-      ssn: "25435252",
-      fname: "Rayyan",
-      lname: "Redha",
-    },
-  ];
+  customers = customers.filter(async (customer) => {
+    let isAdmin = await User.isAdmin(customer.U_SSN);
+
+    return !isAdmin;
+  });
 
   return res.render("admin/packages", { customers, packages });
 };
 
 const getPackage = async (req, res) => {
-  const package = {
-    packageNum: req.params.num,
-    weight: "12",
-    category: "Fragile",
-    insurance: "231",
-    value: "1231",
-    width: 12,
-    height: 20,
-    length: 100,
-    barcode: 5324985789310,
-    tracers: [
-      {
-        date: new Date().toDateString(),
-        location: "Dammam",
-        status: "transit",
-      },
-      {
-        date: new Date().toDateString(),
-        location: "Riyadh",
-        status: "transit",
-      },
-      {
-        date: new Date().toDateString(),
-        location: "Jeddah",
-        status: "deliverd",
-      },
-    ],
-  };
+  const packageBasic = await Package.get(req.params.num);
 
+  //const tracers = await Package.getPackageTraceback(packageBasic)
+
+  const package = { ...packageBasic, tracers: [] };
   return res.render("admin/package", { package });
 };
 
 const getUsers = async (req, res) => {
-  const users = [
-    {
-      ssn: "3412452",
-      fname: "Abdulaziz",
-      phone: 537812391,
-      lname: "Ban Agian",
-      role: "Admin",
-    },
+  let users = await User.getAll();
 
-    {
-      ssn: "74154352",
-      fname: "Yousef",
-      phone: 557712273,
-      lname: "Bukhari",
-      role: "Customer",
-    },
+  const getWithPromiseAll = async () => {
+    users = await Promise.all(
+      users.map(async (user) => {
+        const isAdmin = await User.isAdmin(user.U_SSN);
 
-    {
-      ssn: "25435252",
-      fname: "Rayyan",
-      phone: 533426322,
-      lname: "Redha",
-      role: "Customer",
-    },
-  ];
+        return { ...user, role: isAdmin ? "Admin" : "Customer" };
+      })
+    );
+  };
+  await getWithPromiseAll();
 
   return res.render("admin/users", { users });
 };
 
 const getUser = async (req, res) => {
-  const user = {
-    ssn: "3412452",
-    fname: "Abdulaziz",
-    mname: "Yaslam",
-    phone: 537812391,
-    lname: "Ban Agian",
-    email: "abdulazizyass@gmail.com",
-  };
+  const user = await User.getBySSN(req.params.ssn);
 
   return res.render("admin/user", { user });
 };

@@ -29,5 +29,6 @@ const pckg = {
 //Put ur testing code here
 (async () => {
   //console.log(await Package.create(pckg));
-  console.log(await Package.get(696));
+  //console.log(await Package.get(696));
+  console.log(await User.getAll());
 })();

@@ -19,12 +19,12 @@
       <% if (users.length) { %>
         <% users.forEach( user => { %>
           <tr>
-            <th scope="row"><a href="/admin/users/<%= user.ssn%>"><%= user.ssn%></a></th>
-            <td><%= user.fname %> <%= user.lname %></td>
-            <td><%= user.phone %></td>
+            <th scope="row"><a href="/admin/users/<%= user.U_SSN%>"><%= user.U_SSN%></a></th>
+            <td><%= user.Fname %> <%= user.Lname %></td>
+            <td><%= user.Phone %></td>
             <td><%= user.role %></td>
             <td>
-              <form action="/admin/users/<%= user.ssn %>/delete" method="post">
+              <form action="/admin/users/<%= user.U_SSN %>/delete" method="post">
                 <button type="submit" class="btn btn-danger">
                   Delete
                 </button>
