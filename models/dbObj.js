@@ -90,6 +90,8 @@ const Package = {
     await db.close();
     return metadata;
   },
+
+  //NOT TESTED
   async getPackageTraceback(pckg) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
@@ -122,8 +124,10 @@ const Package = {
     await db.close();
     return false;
   },
+
+  //WORKS
   //get all sent packages by a specific user
-  async getSentPckgs(U_SSN) {
+  async getSent(U_SSN) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
@@ -131,11 +135,18 @@ const Package = {
     const metadata = await db.all(
       `SELECT * FROM Package WHERE Sender_SSN = ${U_SSN}`
     );
+
     await db.close();
-    return metadata;
+
+    if (metadata.length != 0) {
+      return metadata;
+    }
+    return false;
   },
+
+  //WORKS
   //get all recieved packages by a specific user
-  async getRecievedPckgs(U_SSN) {
+  async getRecieved(U_SSN) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
@@ -143,10 +154,16 @@ const Package = {
     const metadata = await db.all(
       `SELECT * FROM Package WHERE Reciever_SSN = ${U_SSN}`
     );
+
     await db.close();
-    return metadata;
+
+    if (metadata.length != 0) {
+      return metadata;
+    }
+    return false;
   },
 
+  //WORKS
   //This function lists all packages either sent or recieved by a certain user (Report)
   async SntRcvReport(U_SSN) {
     const db = await sqlite.open({
@@ -154,13 +171,18 @@ const Package = {
       driver: sqlite3.Database,
     });
 
-    const metadata = await db.all(`SELECT * FROM Packages
+    const metadata = await db.all(`SELECT * FROM Package
     WHERE Sender_SSN = ${U_SSN} OR Reciever_SSN = ${U_SSN}`);
 
     await db.close();
-    return metadata;
+
+    if (metadata.length != 0) {
+      return metadata;
+    }
+    return false;
   },
 
+  //NOT TESTED
   // (Report)
   async customTracking(info) {
     const db = await sqlite.open({
@@ -181,6 +203,7 @@ const Package = {
     return founds;
   },
 
+  //NOT TESTED
   //List all packages between a certain date based on package status  (Report)
   async packagesStatus(dates) {
     const db = await sqlite.open({
@@ -198,6 +221,7 @@ const Package = {
     return metadata;
   },
 
+  //NOT TESTED
   //  List all lost/delayed/delivered packages between two dates (Report)
   async packagesTravelingStatus(dates) {
     const db = await sqlite.open({
@@ -217,20 +241,22 @@ const Package = {
 };
 
 const Payment = {
+  //WORKS
   //Adds amount of payment to the db to considered confirmed payment later
-  async add(usr) {
+  async add(Payment) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
     });
     const metadata = await db.run(
       `INSERT INTO Payment(Usr_SSN, PackageNum, Amount)
-      VALUES (${usr.Usr_SSN}, ${usr.PackageNum}, ${usr.Amount})`
+      VALUES (${Payment.Usr_SSN}, ${Payment.PackageNum}, ${Payment.Amount})`
     );
     await db.close();
     return true;
   },
 
+  //WORKS
   //All confirmed payments report (Report)
   async allConfirmedPayments() {
     const db = await sqlite.open({
@@ -247,6 +273,7 @@ const Payment = {
 };
 
 const User = {
+  //WORKS
   //Add user to DB
   async create(user) {
     const db = await sqlite.open({
@@ -264,6 +291,8 @@ const User = {
     await db.close();
     return true;
   },
+
+  //WORKS
   //Check if a certain user is an admin or not
   async isAdmin(U_SSN) {
     const db = await sqlite.open({
@@ -280,21 +309,22 @@ const User = {
     await db.close();
     return isAdmin[0]["COUNT(1)"] == true;
   },
+
+  //WORKS
   //Remove certain user from DB by ID
-  async delete(user) {
+  async delete(U_SSN) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
     });
 
-    const metadata = await db.run(
-      `DELETE FROM sysUSer WHERE U_SSN = ${user.U_SSN}`
-    );
+    const metadata = await db.run(`DELETE FROM sysUSer WHERE U_SSN = ${U_SSN}`);
 
     await db.close();
     return true;
   },
 
+  //WORKS
   //Edit certain user info by ID
   async update(user) {
     const db = await sqlite.open({
@@ -313,6 +343,7 @@ const User = {
     return true;
   },
 
+  //WORKS
   async getAll() {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
