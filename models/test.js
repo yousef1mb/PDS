@@ -3,15 +3,14 @@ const { Package, Admin, User } = require("./dbObj");
 
 //Giving values to our parameter
 const pckg = {
-  PackageNum: 123,
-  Category: "'Fragile'",
+  PackageNum: 321,
+  Category: "'Lost'",
   pValue: 5000,
   Width: 2,
   Height: 2,
   Length: 16,
   Weight: 59,
   Insurance_amount: 6,
-  pStatus: "'Lost'",
   FinalDeliveryDate: null,
   Sender_SSN: 321,
   Reciever_SSN: 6969,
@@ -29,5 +28,6 @@ const pckg = {
 
 //Put ur testing code here
 (async () => {
-  console.log(await User.isAdmin(321));
+  //console.log(await Package.create(pckg));
+  console.log(await Package.get(696));
 })();
