@@ -48,6 +48,10 @@ const dates = {
   finalDate: "2022/05/27",
 };
 
+const info = {
+  Category:"Liquid",
+  pStatus:"Delivered"
+};
 //Checking whats gonna be given to the DB
 // console.log(`SELECT Category, COUNT(*)
 // FROM Package
@@ -59,5 +63,5 @@ const dates = {
 //Put ur testing code here
 (async () => {
   //console.log(await Package.create(pckg));
-  console.log(await Package.getStatus(399));
+  console.log(await Package.customTracking(info));
 })();

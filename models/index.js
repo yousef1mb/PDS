@@ -213,17 +213,20 @@ const Package = {
       driver: sqlite3.Database,
     });
 
-    const metadata = await db.all(`SELECT Package.PackageNum FROM Package
-    WHERE Category = ${info.Category} AND pStatus = ${info.pStatus}`);
-    var founds = [];
-    for (let i = 0; i++; i < metadata.length) {
-      if (User.tracePackage(metadata[i]) == info.City) {
-        founds.push(metadata[i]);
-      }
-    }
+
+    const metadata = await db.all(
+      `SELECT * FROM Package
+      WHERE Category = '${info.Category}' AND PackageNum IN
+      (SELECT PackageNum from(
+        SELECT PackageNum, pStatus
+        FROM pckgStatus GROUP BY PackageNum
+        HAVING max(pDate))
+        WHERE pStatus = '${info.pStatus}')`
+    );
+    
     await db.close();
     // you might return founds.length for counting the total number
-    return founds;
+    return metadata;
   },
 
   //WORKS
@@ -355,6 +358,7 @@ const User = {
     });
 
     const metadata = await db.run(`DELETE FROM sysUSer WHERE U_SSN = ${U_SSN}`);
+    const metadata2 = await db.run(`DELETE FROM Admin WHERE U_SSN = ${U_SSN}`);
 
     await db.close();
     return true;
@@ -429,6 +433,34 @@ const User = {
       return metadata;
     }
     return false;
+  },
+
+  async setCustomer(U_SSN) {
+    const db = await sqlite.open({
+      filename: "../pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+
+    const metadata = await db.run(
+      `INSERT INTO Customer(U_SSN) VALUES(${U_SSN})`
+    );
+
+    await db.close();
+    return true;
+  },
+
+  async setAdmin(U_SSN) {
+    const db = await sqlite.open({
+      filename: "../pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+
+    const metadata = await db.run(
+      `INSERT INTO Admin(U_SSN) VALUES(${U_SSN})`
+    );
+
+    await db.close();
+    return true;
   },
 };
 
