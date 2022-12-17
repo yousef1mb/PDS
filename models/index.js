@@ -36,7 +36,6 @@ const Package = {
          Width = ${pckg.Width}, Height = ${pckg.Height}, Length = ${pckg.Length},
          Weight = ${pckg.Weight}, Insurance_amount = ${pckg.Insurance_amount},
          FinalDeliveryDate = ${pckg.FinalDeliveryDate},
-         Sender_SSN = ${pckg.Sender_SSN}, Reciever_SSN = ${pckg.Reciever_SSN}, 
          RtlCenter_ID = ${pckg.RtlCenter_ID}
          WHERE PackageNum = ${pckg.PackageNum}`
     );
@@ -88,7 +87,10 @@ const Package = {
     const metadata = await db.all(`SELECT * FROM Package`);
 
     await db.close();
-    return metadata;
+    if (metadata.length != 0) {
+      return metadata;
+    }
+    return false;
   },
 
   //WORKS
@@ -125,6 +127,25 @@ const Package = {
 
     if (metadata.length != 0) {
       return metadata;
+    }
+    return false;
+  },
+
+  //WORKS
+  async getStatus(PackageNum) {
+    const db = await sqlite.open({
+      filename: "../pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+    const metadata = await db.all(
+      `SELECT * FROM pckgStatus WHERE PackageNum = ${PackageNum}
+      ORDER BY pDate DESC`
+    );
+
+    await db.close();
+
+    if (metadata.length != 0) {
+      return [metadata[0]];
     }
     return false;
   },
@@ -205,42 +226,48 @@ const Package = {
     return founds;
   },
 
-  //NOT TESTED
+  //WORKS
   //(Report)
-  //List all packages between a certain date based on package status
-  async packagesStatus(dates) {
+  // N packages of a certain type between 2 dates
+  async typeTracking(dates) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
     });
     const metadata = await db.all(
-      `SELECT Package.Category, COUNT(*)
-      FROM sysUser, History_of_location
-      WHERE Package.PackageNum = History_of_location.PackageNum AND
-      History_of_location.date BETWEEN ${dates.initialDate} AND ${dates.finalDate}
-      GROUP BY Package.Category`
+      `SELECT Category as Type, COUNT(*) as Count
+      FROM Package
+      WHERE PackageNum IN
+      (SELECT PackageNum FROM pckgStatus
+      WHERE pDate BETWEEN '${dates.initialDate}' AND '${dates.finalDate}')
+      GROUP BY Category`
     );
     await db.close();
-    return metadata;
+    if (metadata.length != 0) {
+      return metadata;
+    }
+    return false;
   },
 
-  //NOT TESTED
+  //WORKS
   //(Report)
   //List all lost/delayed/delivered packages between two dates
-  async packagesTravelingStatus(dates) {
+  async statusTracking(dates) {
     const db = await sqlite.open({
       filename: "../pckg_dlv.db",
       driver: sqlite3.Database,
     });
     const metadata = await db.all(
-      `SELECT Package.pStatus, COUNT(*)
-      FROM Package, History_of_location
-      WHERE Package.PackageNum = History_of_location.PackageNum AND
-      History_of_location.date BETWEEN ${dates.initialDate} AND ${dates.finalDate}
-      GROUP BY Package.pStatus`
+      `SELECT * FROM pckgStatus
+      WHERE pStatus IN ('Lost', 'Delayed', 'Delivered')
+      AND pDate BETWEEN '${dates.initialDate}' AND '${dates.finalDate}'
+      ORDER BY PackageNum ASC, pDate DESC`
     );
     await db.close();
-    return metadata;
+    if (metadata.length != 0) {
+      return metadata;
+    }
+    return false;
   },
 };
 
@@ -273,7 +300,10 @@ const Payment = {
         FROM Payment`
     );
     await db.close();
-    return metadata;
+    if (metadata.length != 0) {
+      return metadata;
+    }
+    return false;
   },
 };
 
@@ -359,7 +389,10 @@ const User = {
     const metadata = await db.all(`SELECT * FROM sysUser`);
 
     await db.close();
-    return metadata;
+    if (metadata.length != 0) {
+      return metadata;
+    }
+    return false;
   },
 
   //WORKS

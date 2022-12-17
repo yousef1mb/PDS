@@ -43,17 +43,21 @@ const user2 = {
   Password: "'DummyPass'",
 };
 
+const dates = {
+  initialDate: "2022/05/22",
+  finalDate: "2022/05/27",
+};
+
 //Checking whats gonna be given to the DB
-// console.log(`INSERT INTO Package(PackageNum, Category, pValue,
-//   Width, Height, Length, Weight, Insurance_amount, FinalDeliveryDate,
-//   Sender_SSN, Reciever_SSN, RtlCenter_ID)
-//   VALUES (${pckg.PackageNum},${pckg.Category},
-//   ${pckg.pValue},${pckg.Width},${pckg.Height},${pckg.Length},
-//   ${pckg.Weight},${pckg.Insurance_amount}s,${pckg.FinalDeliveryDate},
-//   ${pckg.Sender_SSN},${pckg.Reciever_SSN},${pckg.RtlCenter_ID})`);
+// console.log(`SELECT Category, COUNT(*)
+// FROM Package
+// WHERE PackageNum IN
+// (SELECT PackageNum FROM pckgStatus
+// WHERE pDate BETWEEN ${dates.initialDate} AND ${dates.finalDate})
+// GROUP BY Category`);
 
 //Put ur testing code here
 (async () => {
   //console.log(await Package.create(pckg));
-  console.log(await User.getByEmail("'y@b.com'"));
+  console.log(await Package.getStatus(399));
 })();
