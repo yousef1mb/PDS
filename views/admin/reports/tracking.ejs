@@ -10,7 +10,6 @@
         <th scope="col">Weight</th>
         <th scope="col">Dimensions</th>
         <th scope="col">Value</th>
-        <th scope="col">Barcode</th>
       </tr>
     </thead>
     <tbody>
@@ -18,12 +17,11 @@
       <% if (packages.length) { %>
         <% packages.forEach( package => { %>
           <tr>
-            <th scope="row"><%= package.packageNum%></th>
-            <td><%= package.insurance %></td>
-            <td><%= package.weight%></td>
-            <td>L: <%= package.length %> H: <%= package.height %> W: <%= package.width %></td>
-            <td><%= package.value %></td>
-            <td><%= package.barcode%></td>
+            <th scope="row"><a href="/admin/packages/<%= package.PackageNum%>"><%= package.PackageNum%></a></th>
+            <td><%= package.Insurance_amount %></td>
+            <td><%= package.Weight%></td>
+            <td>L: <%= package.Length %> H: <%= package.Height %> W: <%= package.Width %></td>
+            <td><%= package.pValue %></td>
           </tr>
         <% }) } else { %>
         <tr>

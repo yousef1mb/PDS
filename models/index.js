@@ -1,5 +1,6 @@
 const sqlite = require("sqlite");
 const sqlite3 = require("sqlite3");
+const { formatDate } = require("../utils");
 
 const Package = {
   //WORKS
@@ -21,7 +22,7 @@ const Package = {
 
     const metadata2 = await db.run(`
     INSERT INTO pckgStatus(PackageNum, pStatus, pDate)
-    VALUES (${pckg.PackageNum}, "Transit", SYSDATETIME())`);
+    VALUES ('${pckg.PackageNum}', "transit", '${formatDate(new Date())}')`);
 
     await db.close();
     return true;
@@ -39,7 +40,7 @@ const Package = {
          Category = '${pckg.Category}', pValue = ${pckg.pValue}, 
          Width = ${pckg.Width}, Height = ${pckg.Height}, Length = ${pckg.Length},
          Weight = ${pckg.Weight}, Insurance_amount = ${pckg.Insurance_amount},
-         FinalDeliveryDate = ${pckg.FinalDeliveryDate},
+         FinalDeliveryDate = '${pckg.FinalDeliveryDate}',
          RtlCenter_ID = ${pckg.RtlCenter_ID}
          WHERE PackageNum = '${pckg.PackageNum}'`
     );
@@ -57,6 +58,23 @@ const Package = {
 
     const metadata = await db.run(
       `DELETE FROM Package WHERE PackageNum = '${pckg.PackageNum}'`
+    );
+
+    await db.close();
+    return true;
+  },
+
+  async changeStatus(PackageNum, status) {
+    const db = await sqlite.open({
+      filename: "pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+    const now = new Date();
+    const metadata = await db.run(
+      `INSERT INTO pckgStatus VALUES(
+        '${PackageNum}',
+        '${status}',
+        '${formatDate(now)}')`
     );
 
     await db.close();
@@ -141,7 +159,7 @@ const Package = {
       driver: sqlite3.Database,
     });
     const metadata = await db.all(
-      `SELECT * FROM pckgStatus WHERE PackageNum = ${PackageNum}
+      `SELECT * FROM pckgStatus WHERE PackageNum = '${PackageNum}'
       ORDER BY pDate DESC`
     );
 
@@ -162,7 +180,7 @@ const Package = {
     });
 
     const metadata = await db.all(`SELECT * FROM Package
-    WHERE Sender_SSN = ${U_SSN} OR Reciever_SSN = ${U_SSN}`);
+    WHERE Sender_SSN = '${U_SSN}' OR Reciever_SSN = '${U_SSN}'`);
 
     await db.close();
 
@@ -174,37 +192,73 @@ const Package = {
 
   //TESTED
   //(Report)
-  async getPackageTraceback(pckg) {
+  async getPackageTracebackLocation(pckg) {
     const db = await sqlite.open({
       filename: "pckg_dlv.db",
       driver: sqlite3.Database,
     });
     const metadata = await db.all(
-      `SELECT  History_of_location.Lsurrogate, History_of_location.Date
-      from Package, History_of_location
-      where History_of_location.PackageNum = ${pckg.PackageNum} 
-      ORDER BY History_of_location.Date DESC;`
+      `SELECT  Lsurrogate,Date
+      from History_of_location
+      where PackageNum = '${pckg.PackageNum}' 
+      ORDER BY Date DESC;`
     );
     const tableName = ["Truck", "Warehouse", "Plane", "Airport"];
-    var currentState;
-    for (let j = 0; j < 2; j++) {
-      for (let i = 0; i < tableName.length; i++) {
-        currentState = await db.all(`
-        SELECT *
-        FROM ${tableName[i]}
-        WHERE ${metadata[j].Lsurrogate} = ${tableName[i] + "." + "Lsurrogate"}
-        `);
-        if (currentState[0] != null) {
-          if (tableName[i] == "Warehouse" || tableName[i] == "Airport") {
-            await db.close();
-            return currentState[0].City;
+
+    const tracers = [];
+    metadata.forEach((data) => {
+      let surrogate = data.Lsurrogate;
+      tableName.forEach(async (table) => {
+        if (table === "Warehouse" || table === "Airport") {
+          let location = await db.get(
+            `SELECT * FROM ${table} WHERE Lsurrogate = ${surrogate}`
+          );
+          if (!location) {
+            return false;
+          } else {
+            tracers.push({ City: location.City, Date: data.Date });
+          }
+        } else {
+          let veichel = await db.get(
+            `SELECT * FROM ${table} WHERE Lsurrogate = ${surrogate}`
+          );
+          if (!veichel) {
+            return false;
+          } else {
+            if (table === "Plane")
+              tracers.push({
+                PlaneCompany: veichel.PlaneCompany,
+                Date: data.Date,
+              });
+            else
+              tracers.push({
+                LicensePlateNo: veichel.LicensePlateNo,
+                Date: data.Date,
+              });
           }
         }
-      }
-    }
+      });
+    });
 
     await db.close();
-    return false;
+    return tracers;
+  },
+
+  async getPackageTracebackStatus(pckg) {
+    const db = await sqlite.open({
+      filename: "pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+    const tracers = await db.all(
+      `SELECT  pStatus,pDate
+      from pckgStatus
+      where PackageNum = '${pckg.PackageNum}' 
+      ORDER BY pDate DESC;`
+    );
+
+    console.log(tracers);
+    await db.close();
+    return tracers;
   },
 
   //Tested
@@ -212,7 +266,7 @@ const Package = {
   //List all packages based on (category, city, status)
   async customTracking(info) {
     const db = await sqlite.open({
-      filename: "../pckg_dlv.db",
+      filename: "pckg_dlv.db",
       driver: sqlite3.Database,
     });
     const metadata = await db.all(
@@ -244,12 +298,7 @@ const Package = {
       driver: sqlite3.Database,
     });
     const metadata = await db.all(
-      `SELECT Category as Type, COUNT(*) as Count
-      FROM Package
-      WHERE PackageNum IN
-      (SELECT PackageNum FROM pckgStatus
-      WHERE pDate BETWEEN '${dates.initialDate}' AND '${dates.finalDate}')
-      GROUP BY Category`
+      `SELECT Category as Type, COUNT(*) as Count FROM Package p JOIN (SELECT PackageNum, MIN(pDate) From pckgStatus WHERE pDate BETWEEN '${dates.initialDate}' AND '${dates.finalDate}' Group by PackageNum) a ON p.PackageNum = a.PackageNum Group By Category;`
     );
     await db.close();
     if (metadata.length != 0) {
@@ -268,7 +317,7 @@ const Package = {
     });
     const metadata = await db.all(
       `SELECT * FROM pckgStatus
-      WHERE pStatus IN ('Lost', 'Delayed', 'Delivered')
+      WHERE pStatus IN ('lost', 'delayed', 'delivered')
       AND pDate BETWEEN '${dates.initialDate}' AND '${dates.finalDate}'
       ORDER BY PackageNum ASC, pDate DESC`
     );
@@ -291,7 +340,7 @@ const Payment = {
     });
     const metadata = await db.run(
       `INSERT INTO Payment(Usr_SSN, PackageNum, Amount)
-      VALUES (${Payment.Usr_SSN}, ${Payment.PackageNum}, ${Payment.Amount})`
+      VALUES (${Payment.Usr_SSN}, '${Payment.PackageNum}', ${Payment.Amount})`
     );
     await db.close();
     return true;
@@ -311,6 +360,23 @@ const Payment = {
     await db.close();
     if (metadata.length != 0) {
       return metadata;
+    }
+    return false;
+  },
+
+  async isPaid(PackageNum, U_SSN) {
+    const db = await sqlite.open({
+      filename: "pckg_dlv.db",
+      driver: sqlite3.Database,
+    });
+    const metadata = await db.get(
+      `SELECT *
+        FROM Payment WHERE Usr_SSN = ${U_SSN} AND PackageNum = '${PackageNum}'`
+    );
+
+    await db.close();
+    if (metadata) {
+      return true;
     }
     return false;
   },
@@ -391,7 +457,6 @@ const User = {
     await db.close();
     return true;
   },
-
   //WORKS
   async getAll() {
     const db = await sqlite.open({
@@ -433,7 +498,7 @@ const User = {
       driver: sqlite3.Database,
     });
 
-    const metadata = await db.all(
+    const metadata = await db.get(
       `SELECT * FROM sysUser WHERE Email = '${Email}'`
     );
 
@@ -447,7 +512,7 @@ const User = {
   //WORKS
   async setCustomer(U_SSN) {
     const db = await sqlite.open({
-      filename: "../pckg_dlv.db",
+      filename: "pckg_dlv.db",
       driver: sqlite3.Database,
     });
 
@@ -462,7 +527,7 @@ const User = {
   //WORKS
   async setAdmin(U_SSN) {
     const db = await sqlite.open({
-      filename: "../pckg_dlv.db",
+      filename: "pckg_dlv.db",
       driver: sqlite3.Database,
     });
 

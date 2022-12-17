@@ -11,22 +11,13 @@
     </thead>
     <tbody>
 
-      <tr>
-        <th scope="row">Regular</th>
-        <td><%= count.regular %></td>
-      </tr>
-      <tr>
-        <th scope="row">Fragile</th>
-        <td><%= count.fragile %></td>
-      </tr>
-      <tr>
-        <th scope="row">Liquid</th>
-        <td><%= count.liquid %></td>
-      </tr>
-      <tr>
-        <th scope="row">Chemical</th>
-        <td><%= count.chemical %></td>
-      </tr>
+      <% counts.forEach(count => { %>
+        <tr>
+          <th scope="row"><%= count.Type%></th>
+          <td><%= count.Count %></td>
+        </tr>
+      <%})%>
+    
 
     </tbody>
   </table>

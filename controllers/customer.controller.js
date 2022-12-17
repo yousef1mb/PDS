@@ -1,5 +1,5 @@
-const { ID } = require("../utils");
-const { User, Package, Payment } = require("../models/dbObj");
+const { ID, formatDate } = require("../utils");
+const { User, Package, Payment } = require("../models");
 
 const getCustomerPage = async (req, res) => {
   const { user: customer } = req.user;
@@ -10,9 +10,32 @@ const getSentPackages = async (req, res) => {
   const { user: customer } = req.user;
   let customers = await User.getAll();
 
-  const packages = await Package.getSentPckgs(customer.U_SSN);
+  let packages = await Package.getSent(customer.U_SSN);
+  if (packages) {
+    const getWithPromiseAll = async () => {
+      packages = await Promise.all(
+        packages.map(async (package) => {
+          let statuses = await Package.getStatus(package.PackageNum);
+          if (statuses) {
+            let status = statuses[0].pStatus;
+
+            const isPaid = await Payment.isPaid(
+              package.PackageNum,
+              customer.U_SSN
+            );
+            return { ...package, status, isPaid };
+          }
+        })
+      );
+    };
+    await getWithPromiseAll();
+    packages = packages.filter((package) => package !== undefined);
+  } else {
+    packages = [];
+  }
+
   customers = customers.filter((item) => item.U_SSN != customer.U_SSN);
-  customers = customers.filter(async () => {
+  customers = customers.filter(async (item) => {
     const isAdmin = await User.isAdmin(item.U_SSN);
 
     !isAdmin;
@@ -24,7 +47,24 @@ const getSentPackages = async (req, res) => {
 const getRecievedPackages = async (req, res) => {
   const { user: customer } = req.user;
 
-  const packages = await Package.getRecievedPckgs(customer.U_SSN);
+  let packages = await Package.getRecieved(customer.U_SSN);
+  if (packages) {
+    const getWithPromiseAll = async () => {
+      packages = await Promise.all(
+        packages.map(async (package) => {
+          let statuses = await Package.getStatus(package.PackageNum);
+          if (statuses) {
+            let status = statuses[0].pStatus;
+            return { ...package, status };
+          }
+        })
+      );
+    };
+    await getWithPromiseAll();
+    packages = packages.filter((package) => package !== undefined);
+  } else {
+    packages = [];
+  }
 
   return res.render("customer/recievedPackages", { customer, packages });
 };
@@ -33,8 +73,8 @@ const getPackage = async (req, res) => {
   const { user: customer } = req.user;
 
   let package = await Package.get(req.query.q);
-
-  package = { ...package, tracers: [] };
+  let tracers = await Package.getPackageTracebackStatus(package);
+  package = { ...package, tracers };
 
   return res.render("customer/package", { package, customer });
 };
@@ -45,7 +85,7 @@ const send = async (req, res) => {
     PackageNum: ID(),
     pValue: parseFloat(req.body.value),
     Category: req.body.category,
-    FinalDeliveryDate: req.body.finalDate,
+    FinalDeliveryDate: formatDate(new Date(req.body.finalDate)),
     Width: parseFloat(req.body.width),
     Height: parseFloat(req.body.height),
     Length: parseFloat(req.body.length),
@@ -65,11 +105,14 @@ const send = async (req, res) => {
   return res.redirect("/customers/" + req.params.customer_id);
 };
 
-const recieve = async (req, res) => {};
+const recieve = async (req, res) => {
+  await Package.changeStatus(req.params.pkgnum, "delivered");
+
+  return res.redirect("back");
+};
 
 const getUpdatePage = async (req, res) => {
-  const { user: customer } = req.user;
-
+  const customer = await User.getBySSN(req.params.customer_id);
   return res.render("customer/account", { customer });
 };
 
@@ -122,7 +165,9 @@ const doPayment = async (req, res) => {
   };
   await Payment.add(payment);
 
-  return res.redirect("/customers/" + req.params.customer_id);
+  return res.redirect(
+    "/customers/" + req.params.customer_id + "/packages/sent"
+  );
 };
 
 module.exports = {

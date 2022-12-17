@@ -1,4 +1,4 @@
-const { User } = require("../models/dbObj");
+const { User } = require("../models");
 const jwt = require("jsonwebtoken");
 
 const getMainPage = async (req, res) => {
@@ -14,8 +14,10 @@ const login = async (req, res) => {
   if (!user) {
     return res.render("loginError");
   }
+  console.log(user);
 
-  if (user.Password !== req.body.password) {
+  if (user.Password != req.body.password) {
+    console.log(user.Password);
     return res.render("loginError");
   }
 

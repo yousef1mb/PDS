@@ -1,5 +1,5 @@
-const { User, Package } = require("../models/dbObj");
-const { ID } = require("../utils");
+const { User, Package, Payment } = require("../models");
+const { ID, formatDate } = require("../utils");
 
 const getAdminPage = async (req, res) => {
   const admin = req.user;
@@ -23,7 +23,7 @@ const addPackage = async (req, res) => {
     PackageNum: ID(),
     pValue: parseFloat(req.body.value),
     Category: req.body.category,
-    FinalDeliveryDate: req.body.finalDate,
+    FinalDeliveryDate: formatDate(new Date(req.body.finalDate)),
     Width: parseFloat(req.body.width),
     Height: parseFloat(req.body.height),
     Length: parseFloat(req.body.length),
@@ -54,11 +54,12 @@ const removePackage = async (req, res) => {
 
 const editPackage = async (req, res) => {
   let insurance = parseFloat(req.body.value) * 1.11 * 0.2;
+
   const package = {
     PackageNum: req.params.num,
     pValue: parseFloat(req.body.value),
     Category: req.body.category,
-    FinalDeliveryDate: req.body.finalDate,
+    FinalDeliveryDate: formatDate(new Date(req.body.finalDate)),
     Width: parseFloat(req.body.width),
     Height: parseFloat(req.body.height),
     Length: parseFloat(req.body.length),
@@ -98,8 +99,7 @@ const addUser = async (req, res) => {
 };
 
 const removeUser = async (req, res) => {
-  const user = await User.getBySSN(req.params.ssn);
-  const isRemoved = await User.delete(user);
+  const isRemoved = await User.delete(req.params.ssn);
 
   if (isRemoved) {
     return res.redirect("/admin/users");
@@ -128,20 +128,114 @@ const editUser = async (req, res) => {
   }
 };
 
-const getPayments = async (req, res) => {};
+const getPayments = async (req, res) => {
+  const payments = await Payment.allConfirmedPayments();
 
-const getPackagesBasedOnStatus = async (req, res) => {};
+  return res.render("admin/reports/payments", { payments });
+};
 
-const getPackagesBasedOnTypes = async (req, res) => {};
+const getPackagesBasedOnStatus = async (req, res) => {
+  let packages = await Package.statusTracking({
+    initialDate: formatDate(new Date(req.body.initialDate)),
+    finalDate: formatDate(new Date(req.body.finalDate)),
+  });
 
-const getPackagesBasedOnCustomer = async (req, res) => {};
+  const getWithPromiseAll = async () => {
+    packages = await Promise.all(
+      packages.map(async (package) => {
+        // let statuses = await Package.getStatus(package.PackageNum);
+        // if (statuses) {
+        //   let status = statuses[0].pStatus;
 
-const getTrackedPackages = async (req, res) => {};
+        let pkg = await Package.get(package.PackageNum);
+
+        return { ...pkg, status: package.pStatus, Date: package.pDate };
+      })
+    );
+  };
+  await getWithPromiseAll();
+  packages = packages.filter((package) => package !== undefined);
+
+  return res.render("admin/reports/status", { packages });
+};
+
+const getPackagesBasedOnTypes = async (req, res) => {
+  let counts = await Package.typeTracking({
+    initialDate: formatDate(new Date(req.body.initialDate)),
+    finalDate: formatDate(new Date(req.body.finalDate)),
+  });
+  if (!counts) {
+    counts = [
+      {
+        Type: "Reqular",
+        Count: 0,
+      },
+      {
+        Type: "Fragile",
+        Count: 0,
+      },
+      {
+        Type: "Liquid",
+        Count: 0,
+      },
+      {
+        Type: "Chemical",
+        Count: 0,
+      },
+    ];
+  }
+  console.log(counts);
+  return res.render("admin/reports/types", { counts });
+};
+
+const getPackagesBasedOnCustomer = async (req, res) => {
+  let packages = await Package.SntRcvReport(req.body.customer_id);
+  const getWithPromiseAll = async () => {
+    packages = await Promise.all(
+      packages.map(async (package) => {
+        let statuses = await Package.getStatus(package.PackageNum);
+        if (statuses) {
+          let status = statuses[0].pStatus;
+          return { ...package, status };
+        }
+      })
+    );
+  };
+  await getWithPromiseAll();
+
+  packages = packages.filter((package) => package !== undefined);
+
+  return res.render("admin/reports/customerPackages", { packages });
+};
+
+const getTrackedPackages = async (req, res) => {
+  const info = {
+    Category: req.body.category,
+    pStatus: req.body.status,
+    city: req.body.city,
+  };
+  const packages = await Package.customTracking(info);
+
+  return res.render("admin/reports/tracking", { packages });
+};
 
 const getPackages = async (req, res) => {
-  const packages = await Package.getAll();
+  let packages = await Package.getAll();
   let customers = await User.getAll();
 
+  const getWithPromiseAll = async () => {
+    packages = await Promise.all(
+      packages.map(async (package) => {
+        let statuses = await Package.getStatus(package.PackageNum);
+        if (statuses) {
+          let status = statuses[0].pStatus;
+          return { ...package, status };
+        }
+      })
+    );
+  };
+  await getWithPromiseAll();
+  packages = packages.filter((package) => package !== undefined);
   customers = customers.filter(async (customer) => {
     let isAdmin = await User.isAdmin(customer.U_SSN);
 
@@ -154,9 +248,9 @@ const getPackages = async (req, res) => {
 const getPackage = async (req, res) => {
   const packageBasic = await Package.get(req.params.num);
 
-  //const tracers = await Package.getPackageTraceback(packageBasic)
+  const tracers = await Package.getPackageTracebackLocation(packageBasic);
 
-  const package = { ...packageBasic, tracers: [] };
+  const package = { ...packageBasic, tracers };
   return res.render("admin/package", { package });
 };
 

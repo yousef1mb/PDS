@@ -24,18 +24,22 @@
     <thead>
       <tr>
         <th scope="col">Date</th>
-        <th scope="col">Location</th>
-        <th scope="col">status</th>
+        <th scope="col">Status</th>
       </tr>
     </thead>
     <tbody>
+      <% if (package.tracers.length) { %>
         <% package.tracers.forEach( tracer => { %>
           <tr>
-            <th scope="row"><%= tracer.date%></th>
-            <td><%= tracer.location %></td>
-            <td><%= tracer.status %></td>
+            <th scope="row"><%= tracer.pDate%></th>
+            <td><%= tracer.pStatus %></td>
           </tr>
         <% }) %>
+      <%} else { %>
+        <tr>
+          <td colspan="2"> No tracebacks right now</td>
+        </tr>
+      <% } %>
 
     </tbody>
   </table>

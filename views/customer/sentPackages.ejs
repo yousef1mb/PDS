@@ -25,7 +25,14 @@
             <td>$<%= Math.round(package.Insurance_amount * 100)/ 100 %></td>
             <td>$<%= package.pValue %></td>
             <td><%= package.status %></td>
-            <td><a class="btn btn-success" href="/customers/<%= customer.U_SSN %>/payment/<%= package.PackageNum%>">Pay</a></td>
+            <td>
+              <% if (!package.isPaid) { %>
+              <a class="btn btn-success" href="/customers/<%= customer.U_SSN %>/payment/<%= package.PackageNum%>">Pay</a>
+
+              <% } else { %>
+                Paid!
+              <% } %>
+            </td>
           </tr>
         <% }) } else { %>
         <tr>

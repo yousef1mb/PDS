@@ -11,3 +11,15 @@ exports.ID = (length = 3) => {
 
   return id;
 };
+
+exports.formatDate = (date) => {
+  let year = date.getFullYear().toString();
+  let month = date.getMonth() + 1;
+  let day = date.getDate().toString();
+
+  if (month < 10) {
+    month = "0" + month;
+  }
+  let d = year + "/" + month.toString() + "/" + day;
+  return d;
+};

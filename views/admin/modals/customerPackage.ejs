@@ -15,7 +15,7 @@
             <select class="form-control" name="customer_id" id="customer">
               <% if (customers.length) { %>
                 <%customers.forEach(customer => { %>
-                    <option value="<%= customer.ssn %>"><%= customer.U_SSN %> - <%= customer.Fname %> <%= customer.Lname %></option>
+                    <option value="<%= customer.U_SSN %>"><%= customer.U_SSN %> - <%= customer.Fname %> <%= customer.Lname %></option>
               <% }) } else { %>
                 <option value="">-- No customers yet -- </option>
               <% } %>
